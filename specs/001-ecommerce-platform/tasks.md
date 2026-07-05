@@ -33,11 +33,11 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Define entire database structure (User, Category, Product, CartItem, Order, OrderItem) in `backend/prisma/schema.prisma`, run single initial migration, and generate Prisma Client
-- [ ] T006 [P] Verify and configure Cloudinary integration for image storage in `backend/src/utils/cloudinary.ts`
-- [ ] T007 Implement authentication/authorization framework (JWT + Google OAuth) in `backend/src/middlewares/auth.ts`
-- [ ] T008 [P] Setup backend API routing and error handling structure in `backend/src/routes/index.ts` and `backend/src/middlewares/error.ts`
-- [ ] T009 [P] Implement frontend foundational components: Main Layout, Navbar, Footer, and Hero in `frontend/src/components/`
+- [X] T005 Define entire database structure (User, Category, Product, CartItem, Order, OrderItem) in `backend/prisma/schema.prisma`, run single initial migration, and generate Prisma Client
+- [X] T006 [P] Verify and configure Cloudinary integration for image storage in `backend/src/utils/cloudinary.ts`
+- [X] T007 Implement authentication/authorization framework (JWT + Google OAuth) in `backend/src/middlewares/auth.ts`
+- [X] T008 [P] Setup backend API routing and error handling structure in `backend/src/routes/index.ts` and `backend/src/middlewares/error.ts`
+- [X] T009 [P] Implement frontend foundational components: Main Layout, Navbar, Footer, and Hero in `frontend/src/components/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
