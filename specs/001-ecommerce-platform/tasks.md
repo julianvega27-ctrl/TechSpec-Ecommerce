@@ -115,9 +115,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T032 [US4] Implement OrderService with stock deduction logic and User Order History retrieval in `backend/src/services/order.service.ts`
-- [ ] T033 [US4] Implement OrderController in `backend/src/controllers/order.controller.ts`
-- [ ] T034 [US4] Connect backend logic to Checkout and Order History UI components built in US0.
+- [X] T032 [US4] Implement OrderService with stock deduction logic and User Order History retrieval in `backend/src/services/order.service.ts`
+- [X] T033 [US4] Implement OrderController in `backend/src/controllers/order.controller.ts`
+- [X] T034 [US4] Connect backend logic to Checkout and Order History UI components built in US0.
 
 **Checkpoint**: Customers can successfully place orders and view their history.
 

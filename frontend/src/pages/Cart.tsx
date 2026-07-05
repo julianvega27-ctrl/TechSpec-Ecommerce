@@ -5,7 +5,7 @@ import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 
 const Cart: React.FC = () => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

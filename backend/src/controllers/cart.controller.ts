@@ -49,7 +49,7 @@ export const CartController = {
         return res.status(400).json({ message: 'Quantity is required' });
       }
 
-      const cartItem = await CartService.updateQuantity(userId, id, quantity);
+      const cartItem = await CartService.updateQuantity(userId, id as string, quantity);
       res.status(200).json(cartItem);
     } catch (error: any) {
       if (error.message === 'Cart item not found') {
@@ -67,7 +67,7 @@ export const CartController = {
       }
 
       const { id } = req.params;
-      await CartService.removeFromCart(userId, id);
+      await CartService.removeFromCart(userId, id as string);
       res.status(200).json({ message: 'Item removed from cart' });
     } catch (error: any) {
       if (error.message === 'Cart item not found') {
