@@ -101,9 +101,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement CartService in `backend/src/services/cart.service.ts` (enforce authentication requirement)
-- [ ] T030 [US3] Implement CartController in `backend/src/controllers/cart.controller.ts`
-- [ ] T031 [US3] Connect backend logic to Cart UI component built in US0, ensuring unauthenticated users are prompted to login.
+- [X] T029 [US3] Implement CartService in `backend/src/services/cart.service.ts` (enforce authentication requirement)
+- [X] T030 [US3] Implement CartController in `backend/src/controllers/cart.controller.ts`
+- [X] T031 [US3] Connect backend logic to Cart UI component built in US0, ensuring unauthenticated users are prompted to login.
 
 **Checkpoint**: Shopping cart functionality is complete for authenticated users.
 

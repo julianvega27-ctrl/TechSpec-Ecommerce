@@ -1,14 +1,65 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Button from '../components/ui/Button';
-
-const mockCartItems = [
-  { id: '1', name: 'TS-Mechanica Keyboard V2', sku: 'TS-MK2-01', price: 149.99, quantity: 1, imageUrl: '' },
-  { id: '2', name: 'Precision Mouse Pro', sku: 'TS-MP-04', price: 89.99, quantity: 2, imageUrl: '' },
-];
+import { useAuth } from '../context/AuthContext';
 
 const Cart: React.FC = () => {
-  const subtotal = mockCartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user && !loading) {
+      navigate('/login');
+      return;
+    }
+
+    const fetchCart = async () => {
+      try {
+        const response = await axios.get('/cart');
+        setCartItems(response.data);
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchCart();
+    }
+  }, [user, navigate, loading]);
+
+  const updateQuantity = async (id: string, quantity: number) => {
+    try {
+      if (quantity <= 0) {
+        await axios.delete(`/cart/${id}`);
+        setCartItems(cartItems.filter(item => item.id !== id));
+      } else {
+        await axios.put(`/cart/${id}`, { quantity });
+        setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity } : item));
+      }
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    }
+  };
+
+  const removeItem = async (id: string) => {
+    try {
+      await axios.delete(`/cart/${id}`);
+      setCartItems(cartItems.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
+  };
+
+  if (!user) {
+    return <div className="page-wrapper py-24 text-center mono-data">Por favor, inicie sesión para ver su carrito.</div>;
+  }
+
+  const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.product.price) * item.quantity), 0);
   const tax = subtotal * 0.18;
   const total = subtotal + tax;
 
@@ -31,22 +82,41 @@ const Cart: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {mockCartItems.map((item, index) => (
-                  <tr key={item.id} className={`border-b border-[var(--color-outline-subtle)] last:border-b-0 ${index % 2 !== 0 ? 'bg-[var(--color-surface)]' : 'bg-white'}`}>
-                    <td className="py-4 px-4 flex items-center gap-4">
-                      <div className="w-16 h-16 bg-[var(--color-surface-container)] border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)]"></div>
-                      <div>
-                        <p className="font-medium text-[var(--color-obsidian)]">{item.name}</p>
-                        <p className="mono-data text-xs text-[var(--color-outline)]">SKU: {item.sku}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <input type="number" defaultValue={item.quantity} min={1} className="w-16 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-1 text-center mono-data outline-none" />
-                    </td>
-                    <td className="py-4 px-4 mono-data text-right">${item.price.toFixed(2)}</td>
-                    <td className="py-4 px-4 mono-data text-right font-bold">${(item.price * item.quantity).toFixed(2)}</td>
+                {cartItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-[var(--color-obsidian-light)] mono-data">EL CARRITO ESTÁ VACÍO</td>
                   </tr>
-                ))}
+                ) : (
+                  cartItems.map((item, index) => (
+                    <tr key={item.id} className={`border-b border-[var(--color-outline-subtle)] last:border-b-0 ${index % 2 !== 0 ? 'bg-[var(--color-surface)]' : 'bg-white'}`}>
+                      <td className="py-4 px-4 flex items-center gap-4">
+                        <div className="w-16 h-16 bg-[var(--color-surface-container)] border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] flex items-center justify-center overflow-hidden">
+                          {item.product.imageUrl ? (
+                            <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-contain" />
+                          ) : (
+                            <span className="text-[10px] text-gray-400 mono-data">IMG</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-[var(--color-obsidian)]">{item.product.name}</p>
+                          <p className="mono-data text-xs text-[var(--color-outline)]">SKU: {item.product.id.slice(0, 8)}</p>
+                          <button onClick={() => removeItem(item.id)} className="text-red-500 text-xs hover:underline mt-1">Eliminar</button>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <input 
+                          type="number" 
+                          value={item.quantity} 
+                          onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
+                          min={1} 
+                          className="w-16 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-1 text-center mono-data outline-none" 
+                        />
+                      </td>
+                      <td className="py-4 px-4 mono-data text-right">${Number(item.product.price).toFixed(2)}</td>
+                      <td className="py-4 px-4 mono-data text-right font-bold">${(Number(item.product.price) * item.quantity).toFixed(2)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

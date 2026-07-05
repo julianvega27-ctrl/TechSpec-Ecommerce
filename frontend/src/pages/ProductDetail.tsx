@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import TechSpecsTable, { type TechSpec } from '../components/ui/TechSpecsTable';
 import { Badge } from '../components/ui/Indicators';
@@ -17,8 +18,12 @@ const mockSpecs: TechSpec[] = [
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,6 +42,24 @@ const ProductDetail: React.FC = () => {
 
   if (loading) return <div className="page-wrapper py-24 text-center mono-data text-[var(--color-obsidian)]">CARGANDO...</div>;
   if (!product) return <div className="page-wrapper py-24 text-center mono-data text-red-500">PRODUCTO NO ENCONTRADO</div>;
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    setAddingToCart(true);
+    try {
+      await axios.post('/cart', { productId: product.id, quantity });
+      navigate('/cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Hubo un error al agregar al carrito.');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   return (
     <div className="page-wrapper py-8">
@@ -81,10 +104,23 @@ const ProductDetail: React.FC = () => {
             <div className="flex gap-4 items-end">
               <div className="w-1/3">
                 <label className="label-caps block mb-2">CANTIDAD</label>
-                <input type="number" defaultValue={1} min={1} className="w-full border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 text-center mono-data outline-none focus:border-[var(--color-primary)]" />
+                <input 
+                  type="number" 
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  min={1} 
+                  max={product.stock}
+                  className="w-full border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 text-center mono-data outline-none focus:border-[var(--color-primary)]" 
+                />
               </div>
-              <Button fullWidth variant="primary" className="h-[42px]">
-                AGREGAR AL CARRITO
+              <Button 
+                fullWidth 
+                variant="primary" 
+                className="h-[42px]"
+                onClick={handleAddToCart}
+                disabled={addingToCart || product.stock <= 0}
+              >
+                {addingToCart ? 'AGREGANDO...' : 'AGREGAR AL CARRITO'}
               </Button>
             </div>
             <div className="flex items-center gap-2 mt-2">
