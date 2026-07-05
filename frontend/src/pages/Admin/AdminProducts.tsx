@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Button from '../../components/ui/Button.tsx';
@@ -14,7 +14,13 @@ const productSchema = z.object({
   stock: z.number({ coerce: true }).min(0, 'El stock debe ser 0 o mayor'),
   categoryId: z.string().min(1, 'La categoría es requerida'),
   isActive: z.boolean().default(true),
-  image: z.any().optional(),
+  images: z.any().optional(),
+  specifications: z.array(
+    z.object({
+      label: z.string().min(1, 'Etiqueta requerida'),
+      value: z.string().min(1, 'Valor requerido'),
+    })
+  ).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -26,29 +32,40 @@ const AdminProducts: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [saving, setSaving] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<ProductFormValues>({
+  const { register, control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       isActive: true,
       price: 0,
-      stock: 0
+      stock: 0,
+      specifications: []
     }
   });
 
-  const imageFile = watch('image');
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "specifications"
+  });
+
+  const imagesFiles = watch('images');
 
   useEffect(() => {
-    if (imageFile && imageFile.length > 0) {
-      const file = imageFile[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (imagesFiles && imagesFiles.length > 0) {
+      const newPreviews: string[] = [];
+      Array.from(imagesFiles).forEach((file: any) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          if (newPreviews.length === imagesFiles.length) {
+            setPreviewImages(newPreviews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
-  }, [imageFile]);
+  }, [imagesFiles]);
 
   useEffect(() => {
     fetchData();
@@ -80,11 +97,20 @@ const AdminProducts: React.FC = () => {
       setValue('stock', product.stock);
       setValue('categoryId', product.categoryId);
       setValue('isActive', product.isActive);
-      setPreviewImage(product.imageUrl);
+      
+      const parsedSpecs = product.specifications || [];
+      setValue('specifications', parsedSpecs);
+      
+      // Load previews for existing images
+      const existingPreviews = [product.imageUrl];
+      if (product.images && Array.isArray(product.images)) {
+        product.images.forEach((img: any) => existingPreviews.push(img.url));
+      }
+      setPreviewImages(existingPreviews.filter(Boolean));
     } else {
       setEditingProduct(null);
       reset();
-      setPreviewImage(null);
+      setPreviewImages([]);
     }
     setIsModalOpen(true);
   };
@@ -92,13 +118,13 @@ const AdminProducts: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     reset();
-    setPreviewImage(null);
+    setPreviewImages([]);
     setEditingProduct(null);
   };
 
   const onSubmit = async (data: ProductFormValues) => {
-    if (!editingProduct && (!data.image || data.image.length === 0)) {
-      alert('La imagen es requerida para nuevos productos');
+    if (!editingProduct && (!data.images || data.images.length === 0)) {
+      alert('Al menos una imagen es requerida para nuevos productos');
       return;
     }
 
@@ -112,9 +138,15 @@ const AdminProducts: React.FC = () => {
       formData.append('stock', data.stock.toString());
       formData.append('categoryId', data.categoryId);
       formData.append('isActive', data.isActive.toString());
+      
+      if (data.specifications && data.specifications.length > 0) {
+        formData.append('specifications', JSON.stringify(data.specifications));
+      }
 
-      if (data.image && data.image.length > 0) {
-        formData.append('image', data.image[0]);
+      if (data.images && data.images.length > 0) {
+        Array.from(data.images).forEach((file: any) => {
+          formData.append('images', file);
+        });
       }
 
       const token = localStorage.getItem('token');
@@ -275,20 +307,54 @@ const AdminProducts: React.FC = () => {
                 <label htmlFor="isActive" className="text-sm font-medium text-[var(--color-obsidian)]">Producto Activo</label>
               </div>
 
-              <div className="space-y-1 pt-2">
-                <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Imagen {editingProduct && '(Opcional)'}</label>
+              {/* Specifications */}
+              <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-bold text-[var(--color-obsidian)] label-caps">Especificaciones Técnicas</h3>
+                  <Button type="button" variant="outline" onClick={() => append({ label: '', value: '' })} className="py-1 px-3 text-xs">Añadir Campo</Button>
+                </div>
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 mb-2 items-start">
+                    <div className="flex-1">
+                      <input 
+                        {...register(`specifications.${index}.label`)} 
+                        placeholder="Ej. Memoria RAM" 
+                        className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] px-2 py-1 text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none"
+                      />
+                      {errors.specifications?.[index]?.label && <p className="text-xs text-red-500 mt-1">{errors.specifications[index].label?.message}</p>}
+                    </div>
+                    <div className="flex-1">
+                      <input 
+                        {...register(`specifications.${index}.value`)} 
+                        placeholder="Ej. 16GB DDR5" 
+                        className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] px-2 py-1 text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none"
+                      />
+                      {errors.specifications?.[index]?.value && <p className="text-xs text-red-500 mt-1">{errors.specifications[index].value?.message}</p>}
+                    </div>
+                    <button type="button" onClick={() => remove(index)} className="text-red-500 font-bold px-2 py-1 hover:bg-red-50 rounded">X</button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-1 pt-4 border-t border-[var(--color-outline-subtle)]">
+                <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Imágenes {editingProduct && '(Opcional)'}</label>
                 <input
                   type="file"
                   accept="image/*"
-                  {...register('image')}
+                  multiple
+                  {...register('images')}
                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-surface-container)] file:text-[var(--color-obsidian)]"
                 />
               </div>
 
-              {previewImage && (
+              {previewImages.length > 0 && (
                 <div className="mt-2">
-                  <p className="text-xs text-gray-500 mb-1">Vista Previa:</p>
-                  <img src={previewImage} alt="Preview" className="h-32 object-contain border border-gray-200 rounded bg-gray-50" />
+                  <p className="text-xs text-gray-500 mb-2">Vista Previa:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {previewImages.map((src, i) => (
+                      <img key={i} src={src} alt="Preview" className="h-20 w-20 object-cover border border-gray-200 rounded bg-gray-50" />
+                    ))}
+                  </div>
                 </div>
               )}
 

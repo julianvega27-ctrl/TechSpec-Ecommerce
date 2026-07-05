@@ -87,19 +87,39 @@ export const AdminController = {
       if (data.stock) data.stock = parseInt(data.stock, 10);
       if (data.isActive !== undefined) data.isActive = data.isActive === 'true' || data.isActive === true;
 
-      if (!req.file) {
+      if (data.categoryId) {
+        data.category = { connect: { id: data.categoryId } };
+        delete data.categoryId;
+      }
+
+      if (data.specifications) {
+        try {
+          data.specifications = JSON.parse(data.specifications);
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
+
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
         return res.status(400).json({ error: 'La imagen del producto es requerida' });
       }
 
       // Upload to cloudinary
-      const b64 = Buffer.from(req.file.buffer).toString('base64');
-      const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-      const uploadResult = await cloudinary.uploader.upload(dataURI, {
-        folder: 'techspec_products'
-      });
+      const uploadedImages = await Promise.all(
+        files.map(async (file) => {
+          const b64 = Buffer.from(file.buffer).toString('base64');
+          const dataURI = "data:" + file.mimetype + ";base64," + b64;
+          const uploadResult = await cloudinary.uploader.upload(dataURI, {
+            folder: 'techspec_products'
+          });
+          return { url: uploadResult.secure_url, publicId: uploadResult.public_id };
+        })
+      );
       
-      data.imageUrl = uploadResult.secure_url;
-      data.imagePublicId = uploadResult.public_id;
+      data.imageUrl = uploadedImages[0].url;
+      data.imagePublicId = uploadedImages[0].publicId;
+      data.images = uploadedImages.slice(1); // Store remaining images in the json array
 
       const product = await ProductService.createProduct(data);
       return res.status(201).json(product);
@@ -117,15 +137,35 @@ export const AdminController = {
       if (data.stock) data.stock = parseInt(data.stock, 10);
       if (data.isActive !== undefined) data.isActive = data.isActive === 'true' || data.isActive === true;
 
-      if (req.file) {
-        const b64 = Buffer.from(req.file.buffer).toString('base64');
-        const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-        const uploadResult = await cloudinary.uploader.upload(dataURI, {
-          folder: 'techspec_products'
-        });
+      if (data.categoryId) {
+        data.category = { connect: { id: data.categoryId } };
+        delete data.categoryId;
+      }
+
+      if (data.specifications) {
+        try {
+          data.specifications = JSON.parse(data.specifications);
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
+
+      const files = req.files as Express.Multer.File[];
+      if (files && files.length > 0) {
+        const uploadedImages = await Promise.all(
+          files.map(async (file) => {
+            const b64 = Buffer.from(file.buffer).toString('base64');
+            const dataURI = "data:" + file.mimetype + ";base64," + b64;
+            const uploadResult = await cloudinary.uploader.upload(dataURI, {
+              folder: 'techspec_products'
+            });
+            return { url: uploadResult.secure_url, publicId: uploadResult.public_id };
+          })
+        );
         
-        data.imageUrl = uploadResult.secure_url;
-        data.imagePublicId = uploadResult.public_id;
+        data.imageUrl = uploadedImages[0].url;
+        data.imagePublicId = uploadedImages[0].publicId;
+        data.images = uploadedImages.slice(1);
       }
 
       const product = await ProductService.updateProduct(id, data);

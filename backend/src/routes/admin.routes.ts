@@ -25,8 +25,8 @@ router.get('/orders', AdminController.getAllOrders);
 router.put('/orders/:id/status', AdminController.updateOrderStatus);
 
 // Products
-router.post('/products', upload.single('image'), AdminController.createProduct);
-router.put('/products/:id', upload.single('image'), AdminController.updateProduct);
+router.post('/products', upload.array('images', 5), AdminController.createProduct);
+router.put('/products/:id', upload.array('images', 5), AdminController.updateProduct);
 router.delete('/products/:id', AdminController.deleteProduct);
 
 // Categories

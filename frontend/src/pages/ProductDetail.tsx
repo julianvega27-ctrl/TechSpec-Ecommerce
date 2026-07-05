@@ -6,15 +6,7 @@ import Button from '../components/ui/Button';
 import TechSpecsTable, { type TechSpec } from '../components/ui/TechSpecsTable';
 import { Badge } from '../components/ui/Indicators';
 
-const mockSpecs: TechSpec[] = [
-  { label: 'MODELO', value: 'TS-MK2-01' },
-  { label: 'SWITCHES', value: 'Tactile Obsidian (50g)' },
-  { label: 'INTERFAZ', value: 'USB-C (Detachable)' },
-  { label: 'ILUMINACIÓN', value: 'Per-key Electric Cyan LED' },
-  { label: 'MATERIAL', value: 'Aluminio de grado aeroespacial' },
-  { label: 'DIMENSIONES', value: '355 x 125 x 38 mm' },
-  { label: 'PESO', value: '985g' },
-];
+// mockSpecs removed, we will use product specifications directly
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +16,7 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -31,6 +24,9 @@ const ProductDetail: React.FC = () => {
       try {
         const response = await axios.get(`/products/${id}`);
         setProduct(response.data);
+        if (response.data.imageUrl) {
+          setSelectedImage(response.data.imageUrl);
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -69,8 +65,8 @@ const ProductDetail: React.FC = () => {
         <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
           <div className="w-full aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] flex items-center justify-center p-8 relative overflow-hidden">
             <span className="label-caps text-[var(--color-outline)] absolute top-4 left-4 z-10">VISTA PRINCIPAL</span>
-            {product.imageUrl ? (
-              <img src={product.imageUrl} alt={product.name} className="object-contain w-full h-full" />
+            {selectedImage ? (
+              <img src={selectedImage} alt={product.name} className="object-contain w-full h-full" />
             ) : (
               <div className="w-2/3 h-2/3 bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center">
                 <span className="mono-data text-gray-500">NO IMAGE</span>
@@ -79,11 +75,23 @@ const ProductDetail: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(idx => (
-              <div key={idx} className={`aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border cursor-pointer hover:border-[var(--color-primary)] transition-colors ${idx === 1 ? 'border-[var(--color-primary)]' : 'border-[var(--color-outline-subtle)]'} flex items-center justify-center`}>
-                 <span className="mono-data text-xs text-gray-400">THUMB_0{idx}</span>
-              </div>
-            ))}
+            {(() => {
+              const allImages = [product.imageUrl];
+              if (product.images && Array.isArray(product.images)) {
+                product.images.forEach((img: any) => allImages.push(img.url));
+              }
+              const validImages = allImages.filter(Boolean);
+
+              return validImages.map((src, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => setSelectedImage(src)}
+                  className={`aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border cursor-pointer hover:border-[var(--color-primary)] transition-colors ${selectedImage === src ? 'border-[var(--color-primary)]' : 'border-[var(--color-outline-subtle)]'} flex items-center justify-center p-2 overflow-hidden`}
+                >
+                   <img src={src} alt={`Thumb ${idx}`} className="w-full h-full object-cover rounded" />
+                </div>
+              ));
+            })()}
           </div>
         </div>
 
@@ -131,7 +139,11 @@ const ProductDetail: React.FC = () => {
 
           <div>
             <h3 className="label-caps mb-4">ESPECIFICACIONES TÉCNICAS</h3>
-            <TechSpecsTable specs={mockSpecs} />
+            {product.specifications && product.specifications.length > 0 ? (
+              <TechSpecsTable specs={product.specifications} />
+            ) : (
+              <p className="text-[var(--color-obsidian-light)] text-sm border-t border-[var(--color-outline-subtle)] pt-4">No hay especificaciones disponibles para este producto.</p>
+            )}
           </div>
         </div>
       </div>
