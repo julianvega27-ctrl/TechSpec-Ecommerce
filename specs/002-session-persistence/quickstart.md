@@ -18,7 +18,10 @@
 3. Refresh the page.
 4. Verify the system cleans the local session (token removed from `localStorage`) and redirects to login/unauthenticated state.
 
-### 3. Logout clears token
+### 3. Logout clears token and updates UI
 1. Login with valid credentials.
-2. Click "Cerrar sesión" in the app.
-3. Verify that `localStorage.getItem('token')` returns `null` in the browser dev tools.
+2. Verify the Navbar shows "Cerrar sesión" instead of "Ingresar".
+3. Click "Cerrar sesión" in the Navbar.
+4. Verify you are redirected to the Home page.
+5. Verify the Navbar shows "Ingresar" again.
+6. Verify that `localStorage.getItem('token')` returns `null` in the browser dev tools.

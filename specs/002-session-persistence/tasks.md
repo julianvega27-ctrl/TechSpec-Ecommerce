@@ -24,7 +24,7 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T001 Define `AuthState` extension in `frontend/src/context/AuthContext.tsx` to include `loading: boolean` flag for initial app load.
+- [x] T001 Define `AuthState` extension in `frontend/src/context/AuthContext.tsx` to include `loading: boolean` flag for initial app load.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -38,8 +38,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T002 [US1] Update `login` method in `frontend/src/context/AuthContext.tsx` to store the received token in `localStorage`.
-- [ ] T003 [US1] Update state initialization in `frontend/src/context/AuthContext.tsx` to read the token from `localStorage` on initial load.
+- [x] T002 [US1] Update `login` method in `frontend/src/context/AuthContext.tsx` to store the received token in `localStorage`.
+- [x] T003 [US1] Update state initialization in `frontend/src/context/AuthContext.tsx` to read the token from `localStorage` on initial load.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -53,9 +53,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T004 [US2] Add a `useEffect` hook in `frontend/src/context/AuthContext.tsx` to fetch user data on mount if a token exists in `localStorage`.
-- [ ] T005 [US2] Update `frontend/src/context/AuthContext.tsx` to handle validation failure (e.g., 401 or network error) by clearing the local session and setting `loading` to false.
-- [ ] T006 [US2] Update the `AuthProvider` return in `frontend/src/context/AuthContext.tsx` to render a full-screen loading spinner (e.g., `<Indicators />`) while `loading` is true.
+- [x] T004 [US2] Add a `useEffect` hook in `frontend/src/context/AuthContext.tsx` to fetch user data on mount if a token exists in `localStorage`.
+- [x] T005 [US2] Update `frontend/src/context/AuthContext.tsx` to handle validation failure (e.g., 401 or network error) by clearing the local session and setting `loading` to false.
+- [x] T006 [US2] Update the `AuthProvider` return in `frontend/src/context/AuthContext.tsx` to render a full-screen loading spinner (e.g., `<Indicators />`) while `loading` is true.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -69,7 +69,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T007 [US3] Update `logout` method in `frontend/src/context/AuthContext.tsx` to call `localStorage.removeItem('token')`.
+- [x] T007 [US3] Update `logout` method in `frontend/src/context/AuthContext.tsx` to call `localStorage.removeItem('token')`.
+- [x] T008 [US3] Update `frontend/src/components/Navbar.tsx` to conditionally render "Mi perfil" when `user` exists, linking to `/profile` where the user can then log out.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -79,7 +80,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T008 Run quickstart.md validation to verify end-to-end functionality.
+- [x] T009 Run quickstart.md validation to verify end-to-end functionality.
 
 ---
 

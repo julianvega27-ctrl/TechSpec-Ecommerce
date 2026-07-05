@@ -27,10 +27,18 @@ interface ProgressBarProps {
 export const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
   return (
     <div className="w-full bg-[var(--color-surface-container-high)] h-[2px]">
-      <div 
+      <div
         className="bg-[var(--color-primary)] h-[2px] transition-all duration-300"
         style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
       />
+    </div>
+  );
+};
+
+export const FullScreenLoader: React.FC = () => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-[var(--color-surface)] z-50">
+      <div className="w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 };

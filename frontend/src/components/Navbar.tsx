@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User } from 'lucide-react';
-
+import { useAuth } from '../context/AuthContext';
 const Navbar: React.FC = () => {
+  const { user } = useAuth();
+
   return (
     <nav className="bg-white border-b border-[var(--color-outline-subtle)] sticky top-0 z-50">
       <div className="page-wrapper py-0">
@@ -22,10 +24,17 @@ const Navbar: React.FC = () => {
                 0
               </span>
             </Link>
-            <Link to="/login" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] flex items-center transition-colors">
-              <User className="h-5 w-5 mr-2" />
-              <span className="label-caps">Ingresar</span>
-            </Link>
+            {user ? (
+              <Link to="/profile" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] flex items-center transition-colors">
+                <User className="h-5 w-5 mr-2" />
+                <span className="label-caps">Mi perfil</span>
+              </Link>
+            ) : (
+              <Link to="/login" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] flex items-center transition-colors">
+                <User className="h-5 w-5 mr-2" />
+                <span className="label-caps">Ingresar</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

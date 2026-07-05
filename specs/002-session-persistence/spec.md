@@ -14,6 +14,7 @@
 - Q: Mecanismo de Almacenamiento del Token → A: Usar localStorage. Es vulnerable a XSS pero evita modificar el backend.
 - Q: Experiencia de Carga (Loading State) → A: Mostrar un indicador de carga a pantalla completa hasta que la validación termine.
 - Q: Manejo de Errores de Red → A: Borrar el token y limpiar la sesión por seguridad.
+- Q: Comportamiento del botón de Cerrar Sesión → A: Mostrar "Mi perfil" en la barra de navegación en lugar de "Ingresar" cuando el usuario esté autenticado, con un enlace a la página de perfil. Desde ahí el usuario podrá cerrar su sesión.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -73,9 +74,10 @@ Como usuario, quiero cerrar sesión y tener la garantía de que toda mi informac
 - **FR-003**: System MUST mostrar un indicador de carga a pantalla completa mientras se valida el estado del token para evitar parpadeos en la UI.
 - **FR-004**: System MUST validar el estado del token obtenido realizando una petición a la API para recuperar la información del usuario autenticado.
 - **FR-005**: System MUST mantener al usuario autenticado sin requerir un nuevo inicio de sesión si el token es válido.
-- **FR-006**: System MUST eliminar el token automáticamente de `localStorage` y retornar al usuario a un estado no autenticado si el token ha expirado, es inválido, o si la validación falla por error de red.
-- **FR-007**: System MUST eliminar completamente el token de `localStorage` y limpiar el estado de autenticación al ejecutar el cierre de sesión.
-- **FR-008**: System MUST impedir el acceso a rutas protegidas (tanto de usuario como panel administrativo) cuando no exista un usuario autenticado válido.
+- **FR-006**: System MUST eliminar el token automáticamente de `localStorage` y retornar al usuario a un estado no autenticado si el token ha expirado, es inválido, o si la validación falla por error de red, redirigiendo al usuario a la página de inicio.
+- **FR-007**: System MUST eliminar completamente el token de `localStorage` y limpiar el estado de autenticación al ejecutar el cierre de sesión, redirigiendo al usuario a la página de inicio.
+- **FR-008**: System MUST actualizar dinámicamente la barra de navegación (Navbar) para mostrar la opción de "Mi perfil" en lugar de "Ingresar" cuando existe una sesión válida activa, enlazando a `/profile`.
+- **FR-009**: System MUST impedir el acceso a rutas protegidas (tanto de usuario como panel administrativo) cuando no exista un usuario autenticado válido.
 
 ### Key Entities
 

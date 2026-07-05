@@ -49,6 +49,7 @@ specs/002-session-persistence/
 frontend/
 ├── src/
 │   ├── components/
+│   │   ├── Navbar.tsx (Update conditional rendering for "Cerrar sesión")
 │   │   └── ui/
 │   │       └── Indicators.tsx (Revisar si es necesario para el spinner full-screen)
 │   ├── context/
@@ -56,4 +57,4 @@ frontend/
 │   └── App.tsx
 ```
 
-**Structure Decision**: El desarrollo ocurrirá primariamente dentro de `AuthContext.tsx` en el frontend.
+**Structure Decision**: El desarrollo ocurrirá primariamente dentro de `AuthContext.tsx` y `Navbar.tsx` en el frontend.
