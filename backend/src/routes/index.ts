@@ -8,16 +8,16 @@ router.get('/health', (req, res) => {
 });
 
 // Import and use routes (to be implemented in subsequent user stories)
-// import authRoutes from './auth.routes';
-// import userRoutes from './user.routes';
+import authRoutes from './auth.routes.js';
+import userRoutes from './user.routes.js';
 // import productRoutes from './product.routes';
 // import categoryRoutes from './category.routes';
 // import cartRoutes from './cart.routes';
 // import orderRoutes from './order.routes';
 // import adminRoutes from './admin.routes';
 
-// router.use('/auth', authRoutes);
-// router.use('/users', userRoutes);
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
 // router.use('/products', productRoutes);
 // router.use('/categories', categoryRoutes);
 // router.use('/cart', cartRoutes);

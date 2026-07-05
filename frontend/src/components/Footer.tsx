@@ -3,29 +3,26 @@ import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-auto">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="md:flex md:items-center md:justify-between">
-          <div className="flex justify-center md:justify-start mb-6 md:mb-0">
-            <span className="font-bold text-xl text-blue-600">TechSpec</span>
+    <footer className="bg-[var(--color-surface)] border-t border-[var(--color-outline-subtle)] mt-auto">
+      <div className="page-wrapper py-12">
+        <div className="grid-container">
+          <div className="col-span-12 md:col-span-4 flex justify-center md:justify-start mb-6 md:mb-0 items-center">
+            <span className="font-bold text-xl text-[var(--color-obsidian)] tracking-tight">TECH<span className="text-[var(--color-primary)]">SPEC</span></span>
           </div>
-          <div className="flex justify-center space-x-6 md:order-2">
-            <Link to="#" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Términos y Condiciones</span>
+          <div className="col-span-12 md:col-span-4 flex justify-center space-x-6 items-center">
+            <Link to="#" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
               Términos
             </Link>
-            <Link to="#" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Privacidad</span>
+            <Link to="#" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
               Privacidad
             </Link>
-            <Link to="#" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Soporte</span>
+            <Link to="#" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
               Soporte
             </Link>
           </div>
-          <div className="mt-8 md:mt-0 md:order-1">
-            <p className="text-center text-base text-gray-400">
-              &copy; {new Date().getFullYear()} TechSpec Ecommerce. Todos los derechos reservados.
+          <div className="col-span-12 md:col-span-4 mt-8 md:mt-0 flex justify-center md:justify-end items-center">
+            <p className="text-center mono-data text-sm text-[var(--color-outline)]">
+              &copy; {new Date().getFullYear()} TECHSPEC. ALGUNOS DERECHOS RESERVADOS.
             </p>
           </div>
         </div>

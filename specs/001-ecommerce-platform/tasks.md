@@ -45,16 +45,24 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 0 - UI Implementation and Structure (Priority: P0)
 
-**Goal**: Implement the complete visual structure of the application using mock data and no business logic, following `docs/DESIGN.md` and `docs/assets/`.
+**Goal**: Implement the complete visual structure using mock data and no business logic, STRICTLY enforcing the "Kinetic Precision" / Modern Corporate design language from `docs/DESIGN.md`.
 
 ### Implementation for User Story 0
 
-- [ ] T010 [P] [US0] Create Home, Catalog (with pagination UI), and Product Detail (with image gallery UI) pages using mock data in `frontend/src/pages/`
-- [ ] T011 [P] [US0] Create Login, Register, Profile, and Password Recovery (Forgot/Reset) pages using mock data in `frontend/src/pages/`
-- [ ] T012 [P] [US0] Create Cart, Checkout, and Order History pages using mock data in `frontend/src/pages/`
-- [ ] T013 [P] [US0] Create Admin Panel Layout, Dashboard Stats UI, and management pages using mock data in `frontend/src/pages/Admin/`
+- [X] T010 [US0] Configure Tailwind CSS (`frontend/tailwind.config.js`, `frontend/src/index.css`) with Kinetic Precision colors (primary: #006970, surface: #f7f9fb, etc.), Inter and Geist fonts, and 4px baseline spacing.
+- [X] T011 [P] [US0] Create base Button and Input components in `frontend/src/components/ui/` enforcing 4px radius, Geist labels, solid Deep Obsidian primary buttons, and Electric Cyan hover/focus states.
+- [X] T012 [P] [US0] Create Frameless Product Card component in `frontend/src/components/ui/` with 1px `#E2E8F0` hover border and `mono-data` metadata overlay.
+- [X] T013 [P] [US0] Create Chips, Badges (2px radius), and Progress Bars (2px Cyan line) components in `frontend/src/components/ui/`.
+- [X] T014 [P] [US0] Create Tech Specs Table component in `frontend/src/components/ui/` using zebra-stripes and 1px horizontal dividers.
+- [X] T015 [US0] Refactor MainLayout, Navbar, and Footer in `frontend/src/components/` to utilize the 12-column fluid grid, 64px desktop / 16px mobile margins, and faint grid backdrop pattern.
+- [X] T016 [P] [US0] Create Home page in `frontend/src/pages/Home.tsx` using the 12-column grid, Hero component, and Frameless Cards with mock data.
+- [X] T017 [P] [US0] Create Catalog page in `frontend/src/pages/Catalog.tsx` with modular breaks (1px light gray borders) between sections and standard pagination UI.
+- [X] T018 [P] [US0] Create Product Detail page in `frontend/src/pages/ProductDetail.tsx` ensuring the image gallery spans 6-8 columns and includes the Tech Specs Table.
+- [X] T019 [P] [US0] Create Cart, Checkout, and Order History pages in `frontend/src/pages/` enforcing left-aligned text, generous line-heights, and `mono-data` typography for order summaries.
+- [X] T020 [P] [US0] Create Login, Register, Profile, and Password Recovery pages in `frontend/src/pages/` emphasizing sharp structural lines and expansive whitespace.
+- [X] T021 [P] [US0] Create Admin Panel Layout and Dashboard pages in `frontend/src/pages/Admin/` applying the clinical/technical aesthetic with mock data.
 
-**Checkpoint**: The complete visual foundation is established and navigable using mock data.
+**Checkpoint**: The complete visual foundation (Hardware UI style) is established and navigable using mock data.
 
 ---
 
@@ -64,10 +72,10 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement Auth Service (Register, Login including Google OAuth, Password Recovery) and User Service (Profile) in `backend/src/services/`
-- [ ] T015 [P] [US1] Implement Auth and User Controllers in `backend/src/controllers/`
-- [ ] T016 [P] [US1] Define reusable Zod schemas for login and register in `frontend/src/validations/auth.schema.ts`
-- [ ] T017 [US1] Connect backend logic and Zod validation to the Login, Register, Profile, and Password Recovery UI components built in US0.
+- [X] T022 [US1] Implement Auth Service (Register, Login including Google OAuth, Password Recovery) and User Service (Profile) in `backend/src/services/`
+- [X] T023 [P] [US1] Implement Auth and User Controllers in `backend/src/controllers/`
+- [X] T024 [P] [US1] Define reusable Zod schemas for login and register in `frontend/src/validations/auth.schema.ts`
+- [X] T025 [US1] Connect backend logic and Zod validation to the Login, Register, Profile, and Password Recovery UI components built in US0.
 
 **Checkpoint**: Users can authenticate and view their profiles.
 
@@ -79,9 +87,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement ProductService and CategoryService (read operations) with standard pagination in `backend/src/services/`
-- [ ] T019 [P] [US2] Implement Product and Category Controllers in `backend/src/controllers/`
-- [ ] T020 [US2] Connect backend logic to Home, Catalog (pagination), and Product Detail (image gallery) UI components built in US0.
+- [ ] T026 [US2] Implement ProductService and CategoryService (read operations) with standard pagination in `backend/src/services/`
+- [ ] T027 [P] [US2] Implement Product and Category Controllers in `backend/src/controllers/`
+- [ ] T028 [US2] Connect backend logic to Home, Catalog (pagination), and Product Detail (image gallery) UI components built in US0.
 
 **Checkpoint**: Catalog is fully navigable with real data.
 
@@ -93,9 +101,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement CartService in `backend/src/services/cart.service.ts` (enforce authentication requirement)
-- [ ] T022 [US3] Implement CartController in `backend/src/controllers/cart.controller.ts`
-- [ ] T023 [US3] Connect backend logic to Cart UI component built in US0, ensuring unauthenticated users are prompted to login.
+- [ ] T029 [US3] Implement CartService in `backend/src/services/cart.service.ts` (enforce authentication requirement)
+- [ ] T030 [US3] Implement CartController in `backend/src/controllers/cart.controller.ts`
+- [ ] T031 [US3] Connect backend logic to Cart UI component built in US0, ensuring unauthenticated users are prompted to login.
 
 **Checkpoint**: Shopping cart functionality is complete for authenticated users.
 
@@ -107,9 +115,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T024 [US4] Implement OrderService with stock deduction logic and User Order History retrieval in `backend/src/services/order.service.ts`
-- [ ] T025 [US4] Implement OrderController in `backend/src/controllers/order.controller.ts`
-- [ ] T026 [US4] Connect backend logic to Checkout and Order History UI components built in US0.
+- [ ] T032 [US4] Implement OrderService with stock deduction logic and User Order History retrieval in `backend/src/services/order.service.ts`
+- [ ] T033 [US4] Implement OrderController in `backend/src/controllers/order.controller.ts`
+- [ ] T034 [US4] Connect backend logic to Checkout and Order History UI components built in US0.
 
 **Checkpoint**: Customers can successfully place orders and view their history.
 
@@ -121,9 +129,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 5
 
-- [ ] T027 [US5] Implement Admin Services for Products (handling Cloudinary arrays), Categories, Users, Orders (prevent mutation if Delivered), and Analytics (Reports) in `backend/src/services/admin.service.ts`
-- [ ] T028 [US5] Implement Admin routes and controllers in `backend/src/routes/admin.routes.ts`
-- [ ] T029 [US5] Connect backend logic to all Admin Panel pages built in US0, utilizing reusable Zod schemas for forms.
+- [ ] T035 [US5] Implement Admin Services for Products (handling Cloudinary arrays), Categories, Users, Orders (prevent mutation if Delivered), and Analytics (Reports) in `backend/src/services/admin.service.ts`
+- [ ] T036 [US5] Implement Admin routes and controllers in `backend/src/routes/admin.routes.ts`
+- [ ] T037 [US5] Connect backend logic to all Admin Panel pages built in US0, utilizing reusable Zod schemas for forms.
 
 **Checkpoint**: Admin management features are fully functional.
 
@@ -133,9 +141,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Setup global Error Boundary and 404 page in `frontend/src/App.tsx`
-- [ ] T031 Configure Swagger documentation endpoints in backend
-- [ ] T032 Run quickstart.md validation to verify end-to-end functionality
+- [ ] T038 [P] Setup global Error Boundary and 404 page in `frontend/src/App.tsx`
+- [ ] T039 Configure Swagger documentation endpoints in backend
+- [ ] T040 Run quickstart.md validation to verify end-to-end functionality
 
 ---
 
@@ -144,7 +152,7 @@ description: "Task list template for feature implementation"
 ### Incremental Delivery
 
 1. Complete Phase 1 & 2 (Setup + Foundational) → Foundation ready (DB schema created, Cloudinary ready)
-2. Complete Phase 3 (US0) → UI structure and visual foundation ready (mocked)
+2. Complete Phase 3 (US0) → UI structure and visual foundation ready (strictly following DESIGN.md)
 3. Add US1 → Users can authenticate
 4. Add US2 → Catalog can be browsed (MVP milestone)
 5. Add US3 & US4 → Core commerce loop completed, users can view past orders

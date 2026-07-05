@@ -1,23 +1,27 @@
-console.log("1. El archivo comenzó a ejecutarse");
-
+import "dotenv/config";
 import express from "express";
-
-console.log("2. Express fue importado");
+import cors from "cors";
+import { errorHandler } from "./middlewares/error.js";
+import routes from "./routes/index.js";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-console.log("3. Express creado");
+// Middlewares
+app.use(cors());
+app.use(express.json());
 
-const PORT = 3000;
+// Main Router
+app.use("/api", routes);
 
+// Base route for health check
 app.get("/", (_req, res) => {
-    res.send("Hola");
+    res.send("TechSpec API is running");
 });
 
-console.log("4. Antes del listen");
+// Error handling middleware
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log("5. Servidor iniciado");
+    console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
-
-console.log("6. Fin del archivo");
