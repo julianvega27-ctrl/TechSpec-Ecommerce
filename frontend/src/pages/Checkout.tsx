@@ -54,8 +54,6 @@ const Checkout: React.FC = () => {
 
   const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.product.price) * item.quantity), 0);
   const tax = subtotal * 0.18;
-  const shipping = 15;
-  const total = subtotal + tax + shipping; // Wait, backend doesn't add shipping. Let's omit shipping or add it to backend. OrderService only adds tax. So I will omit shipping here to match backend.
 
   const finalTotal = subtotal + tax;
 

@@ -141,9 +141,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Setup global Error Boundary and 404 page in `frontend/src/App.tsx`
-- [ ] T039 Configure Swagger documentation endpoints in backend
-- [ ] T040 Run quickstart.md validation to verify end-to-end functionality
+- [x] T038 [P] Setup global Error Boundary and 404 page in `frontend/src/App.tsx`
+- [x] T039 Configure Swagger documentation endpoints in backend
+- [x] T040 Run quickstart.md validation to verify end-to-end functionality
 
 ---
 

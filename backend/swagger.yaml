@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: TechSpec Ecommerce API
+  description: API documentation for TechSpec Ecommerce Platform
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Development Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+  /products:
+    get:
+      summary: Get all products
+      tags: [Products]
+      responses:
+        '200':
+          description: List of products
