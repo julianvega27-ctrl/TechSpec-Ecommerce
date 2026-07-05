@@ -1,18 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductCard from '../components/ui/ProductCard';
 import Button from '../components/ui/Button';
 
-const mockProducts = Array.from({ length: 12 }).map((_, i) => ({
-  id: `${i + 1}`,
-  name: `TechSpec Product ${i + 1}`,
-  brand: 'TECHSPEC',
-  price: 99.99 + (i * 10),
-  imageUrl: '',
-  sku: `TS-00${i + 1}`,
-  category: i % 2 === 0 ? 'SYSTEMS' : 'PERIPHERALS'
-}));
-
 const Catalog: React.FC = () => {
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/categories');
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        let url = `/products?page=${page}&limit=12`;
+        if (selectedCategory) {
+          url += `&category=${selectedCategory}`;
+        }
+        const response = await axios.get(url);
+        setProducts(response.data.products || []);
+        setTotalPages(response.data.totalPages || 1);
+        setTotal(response.data.total || 0);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [page, selectedCategory]);
+
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
@@ -27,17 +59,27 @@ const Catalog: React.FC = () => {
             <h3 className="label-caps mb-4">Categorías</h3>
             <ul className="space-y-3">
               <li className="flex items-center">
-                <input type="checkbox" className="mr-2 accent-[var(--color-primary)]" />
-                <span className="text-[var(--color-obsidian)]">Systems</span>
+                <input 
+                  type="radio" 
+                  name="category"
+                  checked={selectedCategory === ''}
+                  onChange={() => { setSelectedCategory(''); setPage(1); }}
+                  className="mr-2 accent-[var(--color-primary)]" 
+                />
+                <span className="text-[var(--color-obsidian)]">Todas</span>
               </li>
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2 accent-[var(--color-primary)]" />
-                <span className="text-[var(--color-obsidian)]">Peripherals</span>
-              </li>
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2 accent-[var(--color-primary)]" />
-                <span className="text-[var(--color-obsidian)]">Displays</span>
-              </li>
+              {categories.map(cat => (
+                <li key={cat.id} className="flex items-center">
+                  <input 
+                    type="radio" 
+                    name="category"
+                    checked={selectedCategory === cat.id}
+                    onChange={() => { setSelectedCategory(cat.id); setPage(1); }}
+                    className="mr-2 accent-[var(--color-primary)]" 
+                  />
+                  <span className="text-[var(--color-obsidian)]">{cat.name}</span>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="mb-8">
@@ -52,7 +94,7 @@ const Catalog: React.FC = () => {
         {/* Product Grid */}
         <div className="col-span-12 md:col-span-9">
           <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-4">
-            <span className="mono-data text-sm text-[var(--color-obsidian-light)]">12 RESULTADOS</span>
+            <span className="mono-data text-sm text-[var(--color-obsidian-light)]">{total} RESULTADOS</span>
             <select className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] label-caps text-[var(--color-obsidian)] outline-none">
               <option>Ordenar: Destacados</option>
               <option>Precio: Menor a Mayor</option>
@@ -61,23 +103,41 @@ const Catalog: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockProducts.map(product => (
-              <ProductCard key={product.id} {...product} />
-            ))}
+            {loading ? (
+              <div className="col-span-full text-center py-12 text-gray-500 mono-data">CARGANDO...</div>
+            ) : products.length > 0 ? (
+              products.map(product => (
+                <ProductCard key={product.id} {...product} category={product.category?.name || 'UNCATEGORIZED'} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12 text-gray-500 mono-data">NO SE ENCONTRARON PRODUCTOS</div>
+            )}
           </div>
 
           {/* Pagination */}
-          <div className="mt-12 flex justify-center border-t border-[var(--color-outline-subtle)] pt-8">
-            <div className="flex items-center space-x-2">
-              <Button variant="secondary" className="px-3" disabled>&lt;</Button>
-              <Button variant="primary" className="px-4">1</Button>
-              <Button variant="secondary" className="px-4">2</Button>
-              <Button variant="secondary" className="px-4">3</Button>
-              <span className="text-[var(--color-obsidian-light)] px-2">...</span>
-              <Button variant="secondary" className="px-4">10</Button>
-              <Button variant="secondary" className="px-3">&gt;</Button>
+          {totalPages > 1 && (
+            <div className="mt-12 flex justify-center border-t border-[var(--color-outline-subtle)] pt-8">
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="secondary" 
+                  className="px-3" 
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                >&lt;</Button>
+                
+                <span className="text-[var(--color-obsidian)] px-4 font-bold mono-data">
+                  {page} / {totalPages}
+                </span>
+
+                <Button 
+                  variant="secondary" 
+                  className="px-3" 
+                  disabled={page === totalPages}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                >&gt;</Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

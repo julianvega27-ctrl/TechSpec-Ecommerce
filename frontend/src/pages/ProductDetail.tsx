@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import Button from '../components/ui/Button';
 import TechSpecsTable, { type TechSpec } from '../components/ui/TechSpecsTable';
 import { Badge } from '../components/ui/Indicators';
@@ -15,7 +16,27 @@ const mockSpecs: TechSpec[] = [
 ];
 
 const ProductDetail: React.FC = () => {
-  useParams(); // We will use this later for fetching data
+  const { id } = useParams<{ id: string }>();
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      try {
+        const response = await axios.get(`/products/${id}`);
+        setProduct(response.data);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) return <div className="page-wrapper py-24 text-center mono-data text-[var(--color-obsidian)]">CARGANDO...</div>;
+  if (!product) return <div className="page-wrapper py-24 text-center mono-data text-red-500">PRODUCTO NO ENCONTRADO</div>;
 
   return (
     <div className="page-wrapper py-8">
@@ -23,12 +44,15 @@ const ProductDetail: React.FC = () => {
         
         {/* Image Gallery (Spans 7 columns on large screens) */}
         <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
-          <div className="w-full aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] flex items-center justify-center p-8 relative">
-            <span className="label-caps text-[var(--color-outline)] absolute top-4 left-4">VISTA PRINCIPAL</span>
-            {/* Placeholder for main product image */}
-            <div className="w-2/3 h-2/3 bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center">
-              <span className="mono-data text-gray-500">IMG_TS_MK2_FRONT</span>
-            </div>
+          <div className="w-full aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] flex items-center justify-center p-8 relative overflow-hidden">
+            <span className="label-caps text-[var(--color-outline)] absolute top-4 left-4 z-10">VISTA PRINCIPAL</span>
+            {product.imageUrl ? (
+              <img src={product.imageUrl} alt={product.name} className="object-contain w-full h-full" />
+            ) : (
+              <div className="w-2/3 h-2/3 bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center">
+                <span className="mono-data text-gray-500">NO IMAGE</span>
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-4 gap-4">
@@ -43,16 +67,14 @@ const ProductDetail: React.FC = () => {
         {/* Product Info (Spans 5 columns) */}
         <div className="col-span-12 lg:col-span-5 flex flex-col pt-4 lg:pt-0 lg:pl-8">
           <div className="mb-6 border-b border-[var(--color-outline-subtle)] pb-6">
-            <Badge variant="outline">PERIPHERALS</Badge>
-            <h1 className="text-4xl font-bold text-[var(--color-obsidian)] mt-4 mb-2">TS-Mechanica Keyboard V2</h1>
-            <p className="mono-data text-gray-500 mb-4">SKU: TS-MK2-01</p>
-            <p className="text-3xl font-bold mono-data text-[var(--color-obsidian)]">$149.99</p>
+            <Badge variant="outline">{product.category?.name || 'UNCATEGORIZED'}</Badge>
+            <h1 className="text-4xl font-bold text-[var(--color-obsidian)] mt-4 mb-2">{product.name}</h1>
+            <p className="mono-data text-gray-500 mb-4">MARCA: {product.brand}</p>
+            <p className="text-3xl font-bold mono-data text-[var(--color-obsidian)]">${Number(product.price).toFixed(2)}</p>
           </div>
 
           <div className="mb-8 text-[var(--color-obsidian-light)]">
-            <p>
-              El TS-Mechanica V2 redefina la entrada de datos con interruptores táctiles optimizados para precisión absoluta. Chasis de aluminio mecanizado por CNC para durabilidad sin concesiones y estabilización de teclas de grado industrial.
-            </p>
+            <p>{product.description}</p>
           </div>
 
           <div className="mb-8 flex flex-col gap-4">
@@ -66,8 +88,8 @@ const ProductDetail: React.FC = () => {
               </Button>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <span className="mono-data text-sm">STOCK DISPONIBLE (42 unidades)</span>
+              <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="mono-data text-sm">STOCK DISPONIBLE ({product.stock} unidades)</span>
             </div>
           </div>
 

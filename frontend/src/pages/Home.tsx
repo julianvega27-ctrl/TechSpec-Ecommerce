@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Hero from '../components/Hero';
 import ProductCard from '../components/ui/ProductCard';
 
-const mockFeaturedProducts = [
-  { id: '1', name: 'TS-Mechanica Keyboard V2', brand: 'TECHSPEC', price: 149.99, imageUrl: '', sku: 'TS-MK2-01', category: 'PERIPHERALS' },
-  { id: '2', name: 'Precision Mouse Pro', brand: 'TECHSPEC', price: 89.99, imageUrl: '', sku: 'TS-MP-04', category: 'PERIPHERALS' },
-  { id: '3', name: 'Obsidian Monitor 27"', brand: 'TECHSPEC', price: 349.99, imageUrl: '', sku: 'TS-MN-27', category: 'DISPLAYS' },
-  { id: '4', name: 'Core Compute Node', brand: 'TECHSPEC', price: 1299.99, imageUrl: '', sku: 'TS-CN-88', category: 'SYSTEMS' },
-];
-
 const Home: React.FC = () => {
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('/products?limit=4');
+        setFeaturedProducts(response.data.products || []);
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div>
       <Hero />
@@ -21,11 +29,15 @@ const Home: React.FC = () => {
         </div>
         
         <div className="grid-container">
-          {mockFeaturedProducts.map(product => (
-            <div key={product.id} className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3">
-              <ProductCard {...product} />
-            </div>
-          ))}
+          {featuredProducts.length > 0 ? (
+            featuredProducts.map(product => (
+              <div key={product.id} className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3">
+                <ProductCard {...product} category={product.category?.name || 'UNCATEGORIZED'} />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-12 text-center py-8 text-gray-500 mono-data">CARGANDO PRODUCTOS...</div>
+          )}
         </div>
       </section>
 

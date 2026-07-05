@@ -87,9 +87,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement ProductService and CategoryService (read operations) with standard pagination in `backend/src/services/`
-- [ ] T027 [P] [US2] Implement Product and Category Controllers in `backend/src/controllers/`
-- [ ] T028 [US2] Connect backend logic to Home, Catalog (pagination), and Product Detail (image gallery) UI components built in US0.
+- [X] T026 [US2] Implement ProductService and CategoryService (read operations) with standard pagination in `backend/src/services/`
+- [X] T027 [P] [US2] Implement Product and Category Controllers in `backend/src/controllers/`
+- [X] T028 [US2] Connect backend logic to Home, Catalog (pagination), and Product Detail (image gallery) UI components built in US0.
 
 **Checkpoint**: Catalog is fully navigable with real data.
 
