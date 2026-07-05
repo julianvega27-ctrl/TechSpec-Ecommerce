@@ -97,5 +97,22 @@ export const OrderService = {
     });
 
     return order;
+  },
+
+  async getAllOrders() {
+    return await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { name: true, email: true } },
+        orderItems: { include: { product: true } }
+      }
+    });
+  },
+
+  async updateOrderStatus(id: string, status: any) {
+    return await prisma.order.update({
+      where: { id },
+      data: { status }
+    });
   }
 };

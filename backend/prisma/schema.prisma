@@ -26,6 +26,7 @@ model User {
   googleId  String?    @unique
   name      String
   role      Role       @default(CLIENT)
+  isActive  Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -95,4 +96,13 @@ model OrderItem {
 
   order     Order   @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
+}
+
+model SiteSettings {
+  id            String   @id @default(uuid()) @db.Uuid
+  section       String   @unique
+  content       Json
+  imageUrl      String?
+  imagePublicId String?
+  updatedAt     DateTime @updatedAt
 }

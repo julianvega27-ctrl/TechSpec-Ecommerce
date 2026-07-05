@@ -23,6 +23,7 @@ import AdminProducts from './pages/Admin/AdminProducts';
 import AdminCategories from './pages/Admin/AdminCategories';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminOrders from './pages/Admin/AdminOrders';
+import Settings from './pages/Admin/Settings';
 import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
@@ -38,7 +39,7 @@ const App: React.FC = () => {
             <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
             <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
             <Route path="/orders" element={<MainLayout><OrderHistory /></MainLayout>} />
-            
+
             {/* Auth Routes */}
             <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
             <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
@@ -52,6 +53,7 @@ const App: React.FC = () => {
               <Route path="categories" element={<AdminCategories />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="settings" element={<Settings />} />
               <Route index element={<Dashboard />} />
             </Route>
 

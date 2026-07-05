@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/ui/Input';
@@ -56,6 +56,26 @@ const Profile: React.FC = () => {
             <li>
               <span className="text-[var(--color-primary)] font-medium block">Información Personal</span>
             </li>
+            {user?.role === 'ADMIN' && (
+              <>
+                <li className="pt-2 pb-1 border-t border-[var(--color-outline-subtle)]">
+                  <span className="text-xs font-bold text-[var(--color-obsidian)] label-caps">ADMINISTRACIÓN</span>
+                </li>
+                <li>
+                  <Link to="/admin/products" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Productos</Link>
+                </li>
+                <li>
+                  <Link to="/admin/categories" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Categorías</Link>
+                </li>
+                <li>
+                  <Link to="/admin/users" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Usuarios</Link>
+                </li>
+                <li>
+                  <Link to="/admin/orders" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Pedidos</Link>
+                </li>
+                <li className="pt-2 border-t border-[var(--color-outline-subtle)]"></li>
+              </>
+            )}
             <li>
               <span className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Historial de Órdenes</span>
             </li>

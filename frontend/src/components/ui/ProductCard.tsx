@@ -44,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className="label-caps text-[var(--color-outline)] mb-1">{brand}</p>
           <h3 className="font-medium text-[var(--color-obsidian)] leading-tight mb-2 flex-grow">{name}</h3>
           <p className="mono-data text-lg font-bold text-[var(--color-obsidian)]">
-            ${price.toFixed(2)}
+            ${Number(price).toFixed(2)}
           </p>
         </div>
       </div>

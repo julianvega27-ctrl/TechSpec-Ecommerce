@@ -1,130 +1,176 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
 import { AdminService } from '../services/admin.service.js';
-import { OrderStatus, Role } from '@prisma/client';
+import { UserService } from '../services/user.service.js';
+import { ProductService } from '../services/product.service.js';
+import { CategoryService } from '../services/category.service.js';
+import { OrderService } from '../services/order.service.js';
+import cloudinary from '../utils/cloudinary.js';
 
 export const AdminController = {
-  // --- Analytics ---
-  async getDashboardStats(req: Request, res: Response, next: NextFunction) {
+  async getSettings(req: Request, res: Response) {
+    try {
+      const section = req.params.section as string;
+      const settings = await AdminService.getSiteSettings(section);
+      if (!settings) {
+        return res.status(404).json({ error: 'Settings section not found' });
+      }
+      return res.status(200).json(settings);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error fetching settings' });
+    }
+  },
+
+  async updateSettings(req: Request, res: Response) {
+    try {
+      const section = req.params.section as string;
+      const updated = await AdminService.updateSiteSettings(section, req.body);
+      return res.status(200).json(updated);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error updating settings' });
+    }
+  },
+
+  async getDashboardStats(req: Request, res: Response) {
     try {
       const stats = await AdminService.getDashboardStats();
-      res.json(stats);
-    } catch (error) {
-      next(error);
+      return res.status(200).json(stats);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error fetching dashboard stats' });
     }
   },
 
-  // --- Users ---
-  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+  async getAllUsers(req: Request, res: Response) {
     try {
-      const users = await AdminService.getAllUsers();
-      res.json(users);
-    } catch (error) {
-      next(error);
+      const users = await UserService.getAllUsers();
+      return res.status(200).json(users);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error fetching users' });
     }
   },
 
-  async updateUserRole(req: Request, res: Response, next: NextFunction) {
+  async updateUserRole(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const { role } = req.body;
-      
-      if (!Object.values(Role).includes(role)) {
-         return res.status(400).json({ message: 'Invalid role' });
-      }
-
-      const user = await AdminService.updateUserRole(id, role as Role);
-      res.json(user);
-    } catch (error) {
-      next(error);
+      const id = req.params.id as string;
+      const updatedUser = await UserService.updateUser(id, req.body);
+      return res.status(200).json(updatedUser);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error updating user' });
     }
   },
 
-  // --- Orders ---
-  async getAllOrders(req: Request, res: Response, next: NextFunction) {
+  async getAllOrders(req: Request, res: Response) {
     try {
-      const orders = await AdminService.getAllOrders();
-      res.json(orders);
-    } catch (error) {
-      next(error);
+      const orders = await OrderService.getAllOrders();
+      return res.status(200).json(orders);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error fetching orders' });
     }
   },
 
-  async updateOrderStatus(req: Request, res: Response, next: NextFunction) {
+  async updateOrderStatus(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { status } = req.body;
+      const order = await OrderService.updateOrderStatus(id, status);
+      return res.status(200).json(order);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error updating order' });
+    }
+  },
+
+  async createProduct(req: Request, res: Response) {
+    try {
+      const data = { ...req.body };
       
-      if (!Object.values(OrderStatus).includes(status)) {
-         return res.status(400).json({ message: 'Invalid status' });
+      // Parse numeric/boolean fields
+      if (data.price) data.price = parseFloat(data.price);
+      if (data.stock) data.stock = parseInt(data.stock, 10);
+      if (data.isActive !== undefined) data.isActive = data.isActive === 'true' || data.isActive === true;
+
+      if (!req.file) {
+        return res.status(400).json({ error: 'La imagen del producto es requerida' });
       }
 
-      const order = await AdminService.updateOrderStatus(id, status as OrderStatus);
-      res.json(order);
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Cannot modify a delivered order') {
-         return res.status(400).json({ message: error.message });
+      // Upload to cloudinary
+      const b64 = Buffer.from(req.file.buffer).toString('base64');
+      const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+      const uploadResult = await cloudinary.uploader.upload(dataURI, {
+        folder: 'techspec_products'
+      });
+      
+      data.imageUrl = uploadResult.secure_url;
+      data.imagePublicId = uploadResult.public_id;
+
+      const product = await ProductService.createProduct(data);
+      return res.status(201).json(product);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error creating product' });
+    }
+  },
+
+  async updateProduct(req: Request, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const data = { ...req.body };
+      
+      if (data.price) data.price = parseFloat(data.price);
+      if (data.stock) data.stock = parseInt(data.stock, 10);
+      if (data.isActive !== undefined) data.isActive = data.isActive === 'true' || data.isActive === true;
+
+      if (req.file) {
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+        const uploadResult = await cloudinary.uploader.upload(dataURI, {
+          folder: 'techspec_products'
+        });
+        
+        data.imageUrl = uploadResult.secure_url;
+        data.imagePublicId = uploadResult.public_id;
       }
-      next(error);
+
+      const product = await ProductService.updateProduct(id, data);
+      return res.status(200).json(product);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error updating product' });
     }
   },
 
-  // --- Products ---
-  async createProduct(req: Request, res: Response, next: NextFunction) {
+  async deleteProduct(req: Request, res: Response) {
     try {
-      const product = await AdminService.createProduct(req.body);
-      res.status(201).json(product);
-    } catch (error) {
-      next(error);
+      const id = req.params.id as string;
+      await ProductService.deleteProduct(id);
+      return res.status(204).send();
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error deleting product' });
     }
   },
 
-  async updateProduct(req: Request, res: Response, next: NextFunction) {
+  async createCategory(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const product = await AdminService.updateProduct(id, req.body);
-      res.json(product);
-    } catch (error) {
-      next(error);
+      const category = await CategoryService.createCategory(req.body);
+      return res.status(201).json(category);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error creating category' });
     }
   },
 
-  async deleteProduct(req: Request, res: Response, next: NextFunction) {
+  async updateCategory(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      await AdminService.deleteProduct(id);
-      res.status(204).send();
-    } catch (error) {
-      next(error);
+      const id = req.params.id as string;
+      const category = await CategoryService.updateCategory(id, req.body);
+      return res.status(200).json(category);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error updating category' });
     }
   },
 
-  // --- Categories ---
-  async createCategory(req: Request, res: Response, next: NextFunction) {
+  async deleteCategory(req: Request, res: Response) {
     try {
-      const category = await AdminService.createCategory(req.body);
-      res.status(201).json(category);
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async updateCategory(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const category = await AdminService.updateCategory(id, req.body);
-      res.json(category);
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async deleteCategory(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      await AdminService.deleteCategory(id);
-      res.status(204).send();
-    } catch (error) {
-      next(error);
+      const id = req.params.id as string;
+      await CategoryService.deleteCategory(id);
+      return res.status(204).send();
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message || 'Error deleting category' });
     }
   }
 };

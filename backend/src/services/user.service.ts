@@ -39,4 +39,66 @@ export class UserService {
 
     return updatedUser;
   }
+
+  static async getAllUsers() {
+    return await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      }
+    });
+  }
+
+  static async getUserById(id: string) {
+    return await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      }
+    });
+  }
+
+  static async updateUser(id: string, data: any) {
+    // If role is being changed to CLIENT or isActive to false, check if this is the last active ADMIN
+    if (data.role === 'CLIENT' || data.isActive === false) {
+      const userToUpdate = await prisma.user.findUnique({ where: { id } });
+      
+      if (userToUpdate && userToUpdate.role === 'ADMIN' && userToUpdate.isActive === true) {
+        // Count active admins
+        const activeAdminsCount = await prisma.user.count({
+          where: {
+            role: 'ADMIN',
+            isActive: true,
+          }
+        });
+        
+        // If this is the only one, throw an error
+        if (activeAdminsCount <= 1) {
+          throw new AppError('Cannot demote or deactivate the last active administrator.', 400);
+        }
+      }
+    }
+
+    return await prisma.user.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+      }
+    });
+  }
 }

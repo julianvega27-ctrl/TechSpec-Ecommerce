@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/admin.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
+import { upload } from '../middlewares/upload.js';
 
 const router = Router();
 
@@ -11,6 +12,10 @@ router.use(requireAdmin);
 // Dashboard / Analytics
 router.get('/dashboard', AdminController.getDashboardStats);
 
+// Settings
+router.get('/settings/:section', AdminController.getSettings);
+router.put('/settings/:section', AdminController.updateSettings);
+
 // Users
 router.get('/users', AdminController.getAllUsers);
 router.put('/users/:id/role', AdminController.updateUserRole);
@@ -20,8 +25,8 @@ router.get('/orders', AdminController.getAllOrders);
 router.put('/orders/:id/status', AdminController.updateOrderStatus);
 
 // Products
-router.post('/products', AdminController.createProduct);
-router.put('/products/:id', AdminController.updateProduct);
+router.post('/products', upload.single('image'), AdminController.createProduct);
+router.put('/products/:id', upload.single('image'), AdminController.updateProduct);
 router.delete('/products/:id', AdminController.deleteProduct);
 
 // Categories

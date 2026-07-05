@@ -1,4 +1,5 @@
 import prisma from '../utils/prisma.js';
+import { v2 as cloudinary } from 'cloudinary';
 
 export const ProductService = {
   async getProducts(params: { page: number; limit: number; categoryId?: string | undefined; search?: string | undefined }) {
@@ -48,10 +49,47 @@ export const ProductService = {
 
   async getProductById(id: string) {
     return await prisma.product.findUnique({
-      where: { id, isActive: true },
+      where: { id },
       include: {
         category: true,
       }
     });
   },
+
+  async createProduct(data: any) {
+    return await prisma.product.create({
+      data
+    });
+  },
+
+  async updateProduct(id: string, data: any) {
+    if (data.imagePublicId) {
+      const existing = await prisma.product.findUnique({ where: { id } });
+      if (existing?.imagePublicId && existing.imagePublicId !== data.imagePublicId) {
+        try {
+          await cloudinary.uploader.destroy(existing.imagePublicId);
+        } catch (e) {
+          console.error("Failed to delete old image from Cloudinary", e);
+        }
+      }
+    }
+    return await prisma.product.update({
+      where: { id },
+      data
+    });
+  },
+
+  async deleteProduct(id: string) {
+    const existing = await prisma.product.findUnique({ where: { id } });
+    if (existing?.imagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(existing.imagePublicId);
+      } catch (e) {
+        console.error("Failed to delete image from Cloudinary", e);
+      }
+    }
+    return await prisma.product.delete({
+      where: { id }
+    });
+  }
 };

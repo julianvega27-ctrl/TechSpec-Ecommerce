@@ -1,7 +1,12 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, Navigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminLayout: React.FC = () => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return <div className="p-10 text-center mono-data">Cargando...</div>;
+  if (!user || user.role !== 'ADMIN') return <Navigate to="/" replace />;
   return (
     <div className="flex h-screen bg-[var(--color-surface)] overflow-hidden">
       {/* Sidebar */}
