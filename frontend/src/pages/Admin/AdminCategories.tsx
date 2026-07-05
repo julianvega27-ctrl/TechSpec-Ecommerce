@@ -9,7 +9,7 @@ import { FormField } from '../../components/ui/FormField.tsx';
 const categorySchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   description: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;

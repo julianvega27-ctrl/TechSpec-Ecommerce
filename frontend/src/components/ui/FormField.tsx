@@ -1,4 +1,4 @@
-import React, { type InputHTMLAttributes } from 'react';
+import { type InputHTMLAttributes } from 'react';
 import type { UseFormRegister, FieldValues, Path } from 'react-hook-form';
 
 interface FormFieldProps<TFieldValues extends FieldValues> extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name'> {

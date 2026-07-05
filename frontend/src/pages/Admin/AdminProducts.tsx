@@ -10,8 +10,8 @@ const productSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   brand: z.string().min(1, 'La marca es requerida'),
   description: z.string().min(1, 'La descripción es requerida'),
-  price: z.number({ coerce: true }).min(0, 'El precio debe ser mayor a 0'),
-  stock: z.number({ coerce: true }).min(0, 'El stock debe ser 0 o mayor'),
+  price: z.coerce.number().min(0, 'El precio debe ser mayor a 0'),
+  stock: z.coerce.number().min(0, 'El stock debe ser 0 o mayor'),
   categoryId: z.string().min(1, 'La categoría es requerida'),
   isActive: z.boolean().default(true),
   images: z.any().optional(),
@@ -35,7 +35,7 @@ const AdminProducts: React.FC = () => {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
   const { register, control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productSchema) as any,
     defaultValues: {
       isActive: true,
       price: 0,
@@ -268,7 +268,7 @@ const AdminProducts: React.FC = () => {
               {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
             </h2>
             
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Nombre" name="name" register={register} error={errors.name?.message} />
                 <FormField label="Marca" name="brand" register={register} error={errors.brand?.message} />
@@ -311,7 +311,7 @@ const AdminProducts: React.FC = () => {
               <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-sm font-bold text-[var(--color-obsidian)] label-caps">Especificaciones Técnicas</h3>
-                  <Button type="button" variant="outline" onClick={() => append({ label: '', value: '' })} className="py-1 px-3 text-xs">Añadir Campo</Button>
+                  <Button type="button" variant="secondary" onClick={() => append({ label: '', value: '' })} className="py-1 px-3 text-xs">Añadir Campo</Button>
                 </div>
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 mb-2 items-start">

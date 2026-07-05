@@ -64,9 +64,6 @@ const Settings: React.FC = () => {
     try {
       setLoading(true);
 
-      let imageUrl = previewImage; // Keep existing if not changed, wait actually we shouldn't send data url
-      let imagePublicId = undefined;
-
       // Simple mock for uploading, since we don't have FormData integration setup directly on the backend settings yet
       // We'll just send the text data for now. Real implementation would use FormData and Cloudinary.
       const payload = {

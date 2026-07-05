@@ -117,9 +117,14 @@ export const AdminController = {
         })
       );
       
-      data.imageUrl = uploadedImages[0].url;
-      data.imagePublicId = uploadedImages[0].publicId;
-      data.images = uploadedImages.slice(1); // Store remaining images in the json array
+      if (uploadedImages.length > 0) {
+        const firstImage = uploadedImages[0];
+        if (firstImage) {
+          data.imageUrl = firstImage.url;
+          data.imagePublicId = firstImage.publicId;
+          data.images = uploadedImages.slice(1); // Store remaining images in the json array
+        }
+      }
 
       const product = await ProductService.createProduct(data);
       return res.status(201).json(product);
@@ -162,10 +167,12 @@ export const AdminController = {
             return { url: uploadResult.secure_url, publicId: uploadResult.public_id };
           })
         );
-        
-        data.imageUrl = uploadedImages[0].url;
-        data.imagePublicId = uploadedImages[0].publicId;
-        data.images = uploadedImages.slice(1);
+        const firstImage = uploadedImages[0];
+        if (firstImage) {
+          data.imageUrl = firstImage.url;
+          data.imagePublicId = firstImage.publicId;
+          data.images = uploadedImages.slice(1);
+        }
       }
 
       const product = await ProductService.updateProduct(id, data);
