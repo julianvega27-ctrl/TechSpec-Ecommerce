@@ -22,6 +22,11 @@ const AdminLayout: React.FC = () => {
               </Link>
             </li>
             <li>
+              <Link to="/admin/categories" className="flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors">
+                Categorías
+              </Link>
+            </li>
+            <li>
               <Link to="/admin/orders" className="flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors">
                 Órdenes
               </Link>

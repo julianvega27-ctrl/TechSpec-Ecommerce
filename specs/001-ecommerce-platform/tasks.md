@@ -129,9 +129,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Implement Admin Services for Products (handling Cloudinary arrays), Categories, Users, Orders (prevent mutation if Delivered), and Analytics (Reports) in `backend/src/services/admin.service.ts`
-- [ ] T036 [US5] Implement Admin routes and controllers in `backend/src/routes/admin.routes.ts`
-- [ ] T037 [US5] Connect backend logic to all Admin Panel pages built in US0, utilizing reusable Zod schemas for forms.
+- [X] T035 [US5] Implement Admin Services for Products (handling Cloudinary arrays), Categories, Users, Orders (prevent mutation if Delivered), and Analytics (Reports) in `backend/src/services/admin.service.ts`
+- [X] T036 [US5] Implement Admin routes and controllers in `backend/src/routes/admin.routes.ts`
+- [X] T037 [US5] Connect backend logic to all Admin Panel pages built in US0, utilizing reusable Zod schemas for forms.
 
 **Checkpoint**: Admin management features are fully functional.
 

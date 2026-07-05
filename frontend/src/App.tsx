@@ -18,7 +18,10 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import PasswordRecovery from './pages/PasswordRecovery';
 import Dashboard from './pages/Admin/Dashboard';
-
+import AdminProducts from './pages/Admin/AdminProducts';
+import AdminCategories from './pages/Admin/AdminCategories';
+import AdminUsers from './pages/Admin/AdminUsers';
+import AdminOrders from './pages/Admin/AdminOrders';
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -41,8 +44,11 @@ const App: React.FC = () => {
         {/* Admin Routes with AdminLayout */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="orders" element={<AdminOrders />} />
           <Route index element={<Dashboard />} />
-          {/* Add more admin routes here later */}
         </Route>
       </Routes>
     </Router>
