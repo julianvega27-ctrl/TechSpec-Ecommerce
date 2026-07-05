@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 export interface AuthRequest extends Request {
@@ -17,8 +17,11 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; role: string };
-    
+    if (!token) {
+      return res.status(401).json({ error: 'Authentication required. Malformed token.' });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as unknown as { id: string; role: string };
+
     req.user = decoded;
     next();
   } catch (error) {
