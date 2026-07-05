@@ -5,7 +5,7 @@
 ### User
 - `id` (UUID, PK)
 - `email` (String, Unique)
-- `password` (String, Hashed)
+- `password` (String, Hashed, Optional if using Google OAuth)
 - `googleId` (String, Optional, Unique)
 - `name` (String)
 - `role` (Enum: CLIENT, ADMIN)
@@ -56,7 +56,17 @@
 - `quantity` (Int)
 - `unitPrice` (Decimal)
 
+## Relationships
+- **User (1) to Order (N)**: A User can have multiple Orders.
+- **Category (1) to Product (N)**: A Category can contain multiple Products.
+- **Product (N) to Category (1)**: A Product belongs to a single Category.
+- **Product (1) to CartItem (N)**: A Product can appear in multiple CartItems.
+- **Product (1) to OrderItem (N)**: A Product can appear in multiple OrderItems.
+- **Order (1) to OrderItem (N)**: An Order can contain multiple OrderItems.
+
 ## Rules & Constraints
 - A Category cannot be deleted if it has associated Products (Enforced via application logic before DB operation).
 - Order items lock the `unitPrice` at the time of purchase.
 - Cart items expire 7 days after `addedAt`.
+- Passwords are optional only if `googleId` is provided (OAuth). Email remains universally unique.
+- Cloudinary images use `imageUrl` and `imagePublicId` to ensure resources can be safely updated/deleted without orphaning.
