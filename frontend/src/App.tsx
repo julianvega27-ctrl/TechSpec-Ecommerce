@@ -17,6 +17,7 @@ import OrderHistory from './pages/OrderHistory';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Security from './pages/Security';
 import PasswordRecovery from './pages/PasswordRecovery';
 import Dashboard from './pages/Admin/Dashboard';
 import AdminProducts from './pages/Admin/AdminProducts';
@@ -25,6 +26,9 @@ import AdminUsers from './pages/Admin/AdminUsers';
 import AdminOrders from './pages/Admin/AdminOrders';
 import Settings from './pages/Admin/Settings';
 import NotFound from './pages/NotFound';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Support from './pages/Support';
 
 const App: React.FC = () => {
   return (
@@ -39,11 +43,15 @@ const App: React.FC = () => {
             <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
             <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
             <Route path="/orders" element={<MainLayout><OrderHistory /></MainLayout>} />
+            <Route path="/terms" element={<MainLayout><Terms /></MainLayout>} />
+            <Route path="/privacy" element={<MainLayout><Privacy /></MainLayout>} />
+            <Route path="/support" element={<MainLayout><Support /></MainLayout>} />
 
             {/* Auth Routes */}
             <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
             <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
             <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+            <Route path="/security" element={<MainLayout><Security /></MainLayout>} />
             <Route path="/forgot-password" element={<MainLayout><PasswordRecovery /></MainLayout>} />
 
             {/* Admin Routes with AdminLayout */}

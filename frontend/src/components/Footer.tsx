@@ -10,13 +10,13 @@ const Footer: React.FC = () => {
             <span className="font-bold text-xl text-[var(--color-obsidian)] tracking-tight">TECH<span className="text-[var(--color-primary)]">SPEC</span></span>
           </div>
           <div className="col-span-12 md:col-span-4 flex justify-center space-x-6 items-center">
-            <Link to="#" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
+            <Link to="/terms" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
               Términos
             </Link>
-            <Link to="#" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
+            <Link to="/privacy" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
               Privacidad
             </Link>
-            <Link to="#" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
+            <Link to="/support" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
               Soporte
             </Link>
           </div>

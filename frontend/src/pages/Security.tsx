@@ -5,18 +5,18 @@ import { useAuth } from '../context/AuthContext';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 
-const Profile: React.FC = () => {
+const Security: React.FC = () => {
   const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/login');
-    } else if (user) {
-      setName(user.name);
     }
   }, [user, isLoading, navigate]);
 
@@ -30,10 +30,13 @@ const Profile: React.FC = () => {
     try {
       setIsSaving(true);
       setMessage('');
-      await axios.put('/users/profile', { name });
-      setMessage('Perfil actualizado correctamente');
-    } catch (error) {
-      setMessage('Error al actualizar el perfil');
+      setError('');
+      await axios.put('/users/password', { currentPassword, newPassword });
+      setMessage('Contraseña actualizada correctamente');
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al actualizar la contraseña');
     } finally {
       setIsSaving(false);
     }
@@ -46,7 +49,7 @@ const Profile: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">PERFIL DE USUARIO</h1>
+        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">SEGURIDAD</h1>
       </div>
 
       <div className="grid-container">
@@ -54,7 +57,7 @@ const Profile: React.FC = () => {
         <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 hidden md:block">
           <ul className="space-y-4">
             <li>
-              <span className="text-[var(--color-primary)] font-medium block">Información Personal</span>
+              <Link to="/profile" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Información Personal</Link>
             </li>
             {user?.role === 'ADMIN' && (
               <>
@@ -80,7 +83,7 @@ const Profile: React.FC = () => {
               <Link to="/orders" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Historial de Órdenes</Link>
             </li>
             <li>
-              <Link to="/security" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Seguridad</Link>
+              <span className="text-[var(--color-primary)] font-medium block">Seguridad</span>
             </li>
             <li>
               <button onClick={handleLogout} className="text-[var(--color-error)] mt-8 block cursor-pointer bg-transparent border-none p-0 text-left w-full">Cerrar Sesión</button>
@@ -91,21 +94,17 @@ const Profile: React.FC = () => {
         {/* Main Content */}
         <div className="col-span-12 md:col-span-9 lg:col-span-6">
           <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-8">
-            <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">DATOS DE CONTACTO</h3>
-            {message && <div className="mb-4 p-3 bg-gray-50 text-[var(--color-primary)] rounded text-sm font-medium">{message}</div>}
+            <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">CAMBIAR CONTRASEÑA</h3>
+            {message && <div className="mb-4 p-3 bg-green-50 text-green-700 rounded text-sm font-medium">{message}</div>}
+            {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm font-medium">{error}</div>}
             
             <form className="space-y-6" onSubmit={handleSave}>
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <Input label="NOMBRE COMPLETO" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <Input label="CORREO ELECTRÓNICO" type="email" value={user.email} disabled />
-              {user.role === 'ADMIN' && (
-                <Input label="ROL" type="text" value={user.role} disabled />
-              )}
+              <Input label="CONTRASEÑA ACTUAL" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+              <Input label="NUEVA CONTRASEÑA" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
               
               <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
                 <Button type="submit" variant="primary" disabled={isSaving}>
-                  {isSaving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                  {isSaving ? 'GUARDANDO...' : 'ACTUALIZAR CONTRASEÑA'}
                 </Button>
               </div>
             </form>
@@ -116,4 +115,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Profile;
+export default Security;

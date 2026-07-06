@@ -60,6 +60,9 @@ const Home: React.FC = () => {
                 </div>
               </div>
             </div>
+            <div className="col-span-12 md:col-span-4 lg:col-span-6 flex items-center justify-center bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" alt="Hero Placeholder" className="w-full h-full object-cover" />
+            </div>
           </div>
         </div>
       </section>

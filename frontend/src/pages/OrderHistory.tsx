@@ -5,10 +5,15 @@ import { Badge } from '../components/ui/Indicators';
 import { useAuth } from '../context/AuthContext';
 
 const OrderHistory: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   useEffect(() => {
     if (!user && !loading) {
@@ -63,8 +68,34 @@ const OrderHistory: React.FC = () => {
             <li>
               <Link to="/profile" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Información Personal</Link>
             </li>
+            {user?.role === 'ADMIN' && (
+              <>
+                <li className="pt-2 pb-1 border-t border-[var(--color-outline-subtle)]">
+                  <span className="text-xs font-bold text-[var(--color-obsidian)] label-caps">ADMINISTRACIÓN</span>
+                </li>
+                <li>
+                  <Link to="/admin/products" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Productos</Link>
+                </li>
+                <li>
+                  <Link to="/admin/categories" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Categorías</Link>
+                </li>
+                <li>
+                  <Link to="/admin/users" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Usuarios</Link>
+                </li>
+                <li>
+                  <Link to="/admin/orders" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Pedidos</Link>
+                </li>
+                <li className="pt-2 border-t border-[var(--color-outline-subtle)]"></li>
+              </>
+            )}
             <li>
               <span className="text-[var(--color-primary)] font-medium block">Historial de Órdenes</span>
+            </li>
+            <li>
+              <Link to="/security" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Seguridad</Link>
+            </li>
+            <li>
+              <button onClick={handleLogout} className="text-[var(--color-error)] mt-8 block cursor-pointer bg-transparent border-none p-0 text-left w-full">Cerrar Sesión</button>
             </li>
           </ul>
         </aside>

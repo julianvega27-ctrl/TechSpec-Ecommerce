@@ -1,5 +1,6 @@
 import prisma from '../utils/prisma.js';
 import { AppError } from '../middlewares/error.js';
+import bcrypt from 'bcryptjs';
 
 export class UserService {
   static async getProfile(userId: string) {
@@ -38,6 +39,32 @@ export class UserService {
     });
 
     return updatedUser;
+  }
+
+  static async updatePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new AppError('Usuario no encontrado', 404);
+    }
+    
+    if (!user.password) {
+      throw new AppError('El usuario no tiene una contraseña configurada', 400);
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new AppError('La contraseña actual es incorrecta', 400);
+    }
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword }
+    });
+    
+    return { success: true };
   }
 
   static async getAllUsers() {

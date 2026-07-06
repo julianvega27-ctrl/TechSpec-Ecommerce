@@ -9,5 +9,6 @@ router.use(requireAuth);
 
 router.get('/profile', UserController.getProfile);
 router.put('/profile', UserController.updateProfile);
+router.put('/password', UserController.updatePassword);
 
 export default router;

@@ -24,10 +24,7 @@ const Hero: React.FC = () => {
             </div>
           </div>
           <div className="col-span-12 lg:col-span-6 mt-12 lg:mt-0 relative aspect-video lg:aspect-square flex items-center justify-center bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-surface-dim)] to-transparent opacity-30"></div>
-            <div className="label-caps text-[var(--color-outline)] border border-[var(--color-outline)] px-4 py-2 rounded-[var(--radius-badge)]">
-              RENDERIZADO DE HARDWARE
-            </div>
+            <img src="https://res.cloudinary.com/nic0fytg/image/upload/v1783349199/hero_endframe__fwev9ebh42mq_xlarge_vsieie.jpg" alt="Laptop Hardware Render" className="w-full h-full object-cover" />
           </div>
         </div>
       </div>

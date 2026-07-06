@@ -41,34 +41,34 @@ const Register: React.FC = () => {
           </p>
         </div>
         {error && <div className="bg-red-50 text-red-600 p-3 rounded text-sm text-center">{error}</div>}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
-            <Input 
-              label="NOMBRE COMPLETO" 
-              type="text" 
-              placeholder="Ej. Alex Rodriguez" 
+            <Input
+              label="NOMBRE COMPLETO"
+              type="text"
+              placeholder="Ej. Alex Rodriguez"
               error={errors.name?.message}
               {...register('name')}
             />
-            <Input 
-              label="CORREO ELECTRÓNICO" 
-              type="email" 
-              placeholder="usuario@empresa.com" 
+            <Input
+              label="CORREO ELECTRÓNICO"
+              type="email"
+              placeholder="usuario@empresa.com"
               error={errors.email?.message}
               {...register('email')}
             />
-            <Input 
-              label="CONTRASEÑA" 
-              type="password" 
-              placeholder="••••••••" 
+            <Input
+              label="CONTRASEÑA"
+              type="password"
+              placeholder="••••••••"
               error={errors.password?.message}
               {...register('password')}
             />
-            <Input 
-              label="CONFIRMAR CONTRASEÑA" 
-              type="password" 
-              placeholder="••••••••" 
+            <Input
+              label="CONFIRMAR CONTRASEÑA"
+              type="password"
+              placeholder="••••••••"
               error={errors.confirmPassword?.message}
               {...register('confirmPassword')}
             />
@@ -79,7 +79,7 @@ const Register: React.FC = () => {
               {isSubmitting ? 'REGISTRANDO...' : 'REGISTRAR'}
             </Button>
           </div>
-          
+
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
