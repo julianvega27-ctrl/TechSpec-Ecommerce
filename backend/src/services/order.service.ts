@@ -52,7 +52,7 @@ export const OrderService = {
       }
       subtotal += Number(item.product.price) * item.quantity;
     }
-    
+
     const tax = subtotal * 0.18;
     const totalAmount = subtotal + tax;
 

@@ -13,7 +13,7 @@ export const CategoryController = {
 
   async getCategoryById(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const category = await CategoryService.getCategoryById(id);
 
       if (!category) {

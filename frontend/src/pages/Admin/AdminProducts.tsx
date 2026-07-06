@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Button from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 
 const productSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -33,6 +34,8 @@ const AdminProducts: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const { register, control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
@@ -171,17 +174,24 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Estás seguro de eliminar este producto?')) return;
+  const confirmDelete = (id: string) => {
+    setItemToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/admin/products/${id}`, {
+      await axios.delete(`/admin/products/${itemToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       await fetchData();
     } catch (error) {
       console.error('Error deleting product', error);
       alert('Error al eliminar');
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -246,7 +256,7 @@ const AdminProducts: React.FC = () => {
                   </td>
                   <td className="py-4 px-6 text-right space-x-3">
                     <button onClick={() => handleOpenModal(p)} className="text-[var(--color-primary)] text-sm font-medium hover:underline">Editar</button>
-                    <button onClick={() => handleDelete(p.id)} className="text-[var(--color-error)] text-sm font-medium hover:underline">Eliminar</button>
+                    <button onClick={() => confirmDelete(p.id)} className="text-[var(--color-error)] text-sm font-medium hover:underline">Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -368,6 +378,19 @@ const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="Eliminar Producto"
+        message="¿Estás seguro de eliminar este producto? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

@@ -18,7 +18,7 @@ export const ProductController = {
 
   async getProductById(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const product = await ProductService.getProductById(id);
 
       if (!product) {

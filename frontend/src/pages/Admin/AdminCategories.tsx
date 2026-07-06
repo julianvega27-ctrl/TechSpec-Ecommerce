@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Button from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -20,6 +21,8 @@ const AdminCategories: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
@@ -83,17 +86,24 @@ const AdminCategories: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta categoría? Solo se permite si no tiene productos asociados.')) return;
+  const confirmDelete = (id: string) => {
+    setItemToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/admin/categories/${id}`, {
+      await axios.delete(`/admin/categories/${itemToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       await fetchData();
     } catch (error: any) {
       console.error('Error deleting category', error);
       alert(error.response?.data?.error || 'Error al eliminar');
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -145,7 +155,7 @@ const AdminCategories: React.FC = () => {
                   </td>
                   <td className="py-4 px-6 text-right space-x-3">
                     <button onClick={() => handleOpenModal(c)} className="text-[var(--color-primary)] text-sm font-medium hover:underline">Editar</button>
-                    <button onClick={() => handleDelete(c.id)} className="text-[var(--color-error)] text-sm font-medium hover:underline">Eliminar</button>
+                    <button onClick={() => confirmDelete(c.id)} className="text-[var(--color-error)] text-sm font-medium hover:underline">Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -194,6 +204,19 @@ const AdminCategories: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="Eliminar Categoría"
+        message="¿Estás seguro de eliminar esta categoría? Solo se permite si no tiene productos asociados."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
+  const [roleConfirmOpen, setRoleConfirmOpen] = useState(false);
+  const [userToChangeRole, setUserToChangeRole] = useState<any>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -26,23 +29,31 @@ const AdminUsers: React.FC = () => {
     }
   };
 
-  const toggleRole = async (user: any) => {
+  const confirmToggleRole = (user: any) => {
     if (user.id === currentUser?.id) {
       alert('No puedes cambiar tu propio rol.');
       return;
     }
-    const newRole = user.role === 'ADMIN' ? 'CLIENT' : 'ADMIN';
-    if (!window.confirm(`¿Cambiar rol de ${user.name} a ${newRole}?`)) return;
+    setUserToChangeRole(user);
+    setRoleConfirmOpen(true);
+  };
 
+  const handleToggleRole = async () => {
+    if (!userToChangeRole) return;
+    
+    const newRole = userToChangeRole.role === 'ADMIN' ? 'CLIENT' : 'ADMIN';
+    
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`/admin/users/${user.id}/role`, { role: newRole }, {
+      await axios.put(`/admin/users/${userToChangeRole.id}/role`, { role: newRole }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       await fetchUsers();
     } catch (error: any) {
       console.error('Error changing role', error);
       alert(error.response?.data?.error || 'Error al cambiar el rol');
+    } finally {
+      setUserToChangeRole(null);
     }
   };
 
@@ -103,7 +114,7 @@ const AdminUsers: React.FC = () => {
                   </td>
                   <td className="py-4 px-6 text-right space-x-3">
                     <button 
-                      onClick={() => toggleRole(u)} 
+                      onClick={() => confirmToggleRole(u)} 
                       disabled={u.id === currentUser?.id}
                       className={`text-sm font-medium hover:underline ${u.id === currentUser?.id ? 'text-gray-400 cursor-not-allowed' : 'text-[var(--color-primary)]'}`}
                     >
@@ -116,6 +127,19 @@ const AdminUsers: React.FC = () => {
           </table>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={roleConfirmOpen}
+        onClose={() => {
+          setRoleConfirmOpen(false);
+          setUserToChangeRole(null);
+        }}
+        onConfirm={handleToggleRole}
+        title="Cambiar Rol de Usuario"
+        message={`¿Estás seguro de cambiar el rol de ${userToChangeRole?.name} a ${userToChangeRole?.role === 'ADMIN' ? 'CLIENT' : 'ADMIN'}?`}
+        confirmText="Cambiar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

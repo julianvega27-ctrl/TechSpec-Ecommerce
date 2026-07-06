@@ -104,12 +104,12 @@ const Cart: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <input 
-                          type="number" 
-                          value={item.quantity} 
+                        <input
+                          type="number"
+                          value={item.quantity}
                           onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                          min={1} 
-                          className="w-16 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-1 text-center mono-data outline-none" 
+                          min={1}
+                          className="w-16 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-1 text-center mono-data outline-none"
                         />
                       </td>
                       <td className="py-4 px-4 mono-data text-right">${Number(item.product.price).toFixed(2)}</td>
@@ -125,7 +125,7 @@ const Cart: React.FC = () => {
         <div className="col-span-12 lg:col-span-4">
           <div className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] p-6 sticky top-24">
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">RESUMEN DE ORDEN</h3>
-            
+
             <div className="flex justify-between mb-4">
               <span className="text-[var(--color-obsidian-light)]">Subtotal</span>
               <span className="mono-data">${subtotal.toFixed(2)}</span>

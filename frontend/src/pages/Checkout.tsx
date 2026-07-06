@@ -110,7 +110,7 @@ const Checkout: React.FC = () => {
         <div className="col-span-12 lg:col-span-4">
           <div className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] p-6 sticky top-24">
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">RESUMEN DE LA ORDEN</h3>
-            
+
             <div className="space-y-4 mb-6 border-b border-[var(--color-outline-subtle)] pb-6 max-h-60 overflow-y-auto">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex justify-between">

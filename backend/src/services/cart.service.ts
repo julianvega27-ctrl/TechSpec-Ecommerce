@@ -3,7 +3,7 @@ import prisma from '../utils/prisma.js';
 export const CartService = {
   async getCart(userId: string) {
     return await prisma.cartItem.findMany({
-      where: { 
+      where: {
         userId,
         product: {
           isActive: true
