@@ -41,6 +41,7 @@ const Cart: React.FC = () => {
         await axios.put(`/cart/${id}`, { quantity });
         setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity } : item));
       }
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       console.error('Error updating quantity:', error);
     }
@@ -50,6 +51,7 @@ const Cart: React.FC = () => {
     try {
       await axios.delete(`/cart/${id}`);
       setCartItems(cartItems.filter(item => item.id !== id));
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       console.error('Error removing item:', error);
     }

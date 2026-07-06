@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ProgressBar } from '../../components/ui/Indicators';
+
 
 const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<any>(null);

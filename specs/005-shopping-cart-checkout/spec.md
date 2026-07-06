@@ -13,6 +13,10 @@
 ### Session 2026-07-05
 - Q: What should happen if the stock of an item in the cart runs out in the background right before the user submits the checkout? → A: Block checkout, show an error highlighting the out-of-stock items, and require the user to remove or adjust them.
 
+### Session 2026-07-06
+- Q: Should existing functional components like the cart and checkout be rewritten or replaced? → A: No. Do not create or replace files that already exist and are functional. The focus is strictly on fixing specific bugs (e.g., the cart counter always indicating 0).
+- Q: The checkout form already exists but gives a 404 error upon submission. What should be done? → A: Keep the existing checkout form. Fix the 404 error on submission to allow the simulated payment to complete successfully.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Dynamic Cart Management (Priority: P1)
@@ -67,6 +71,10 @@ Como comprador, quiero ver mis compras recientes inmediatamente en mi historial 
 - **Tax Calculation**: Prices shown on products already include the 18% IGV. The checkout summary must display the derived Subtotal and Tax based on the Total.
 
 ## Requirements *(mandatory)*
+
+### Constraints
+- **CON-001**: Do not overwrite or replace existing functional files (like Cart or Checkout components). Work within the existing architecture and focus on fixing isolated bugs (e.g., the cart counter not updating).
+- **CON-002**: Retain the existing checkout form. Address the 404 "page not found" error upon submission to successfully complete the simulated payment flow.
 
 ### Functional Requirements
 

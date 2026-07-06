@@ -24,9 +24,9 @@ Completar el flujo completo de compra desde el carrito hasta la confirmación de
 
 **Performance Goals**: Cart interactions must instantly update the UI optimistically without blocking the user interface.
 
-**Constraints**: Local checkout simulation (no Stripe/PayPal integrations), synchronous stock validation.
+**Constraints**: Local checkout simulation (no Stripe/PayPal integrations), synchronous stock validation. Do not overwrite or replace existing functional files (e.g., Cart and Checkout components). Focus ONLY on fixing the cart counter bug (always shows 0) and the checkout 404 error on submission.
 
-**Scale/Scope**: Ecommerce checkout flow for a single user transaction at a time.
+**Scale/Scope**: Ecommerce checkout bug fixes (cart counter and 404 error) while preserving the existing implementation.
 
 ## Constitution Check
 

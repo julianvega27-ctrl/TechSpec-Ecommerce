@@ -2,8 +2,34 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+
 const Navbar: React.FC = () => {
   const { user } = useAuth();
+  const [itemCount, setItemCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchCount = async () => {
+      if (!user) {
+        setItemCount(0);
+        return;
+      }
+      try {
+        const response = await axios.get('/cart');
+        const count = response.data.reduce((acc: number, item: any) => acc + item.quantity, 0);
+        setItemCount(count);
+      } catch (err) {
+        console.error('Error fetching cart count:', err);
+      }
+    };
+
+    fetchCount();
+    
+    // Listen for custom event triggered when cart changes
+    const handleCartUpdate = () => fetchCount();
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [user]);
 
   return (
     <nav className="bg-white border-b border-[var(--color-outline-subtle)] sticky top-0 z-50">
@@ -21,7 +47,7 @@ const Navbar: React.FC = () => {
             <Link to="/cart" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] relative transition-colors">
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-2 -right-2 bg-[var(--color-primary)] text-white text-xs rounded-[var(--radius-badge)] h-4 w-4 flex items-center justify-center mono-data font-bold">
-                0
+                {itemCount}
               </span>
             </Link>
             {user ? (

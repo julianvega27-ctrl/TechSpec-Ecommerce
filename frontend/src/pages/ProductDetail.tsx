@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
-import TechSpecsTable, { type TechSpec } from '../components/ui/TechSpecsTable';
+import TechSpecsTable from '../components/ui/TechSpecsTable';
 import { Badge } from '../components/ui/Indicators';
 
 // mockSpecs removed, we will use product specifications directly
@@ -48,6 +48,7 @@ const ProductDetail: React.FC = () => {
     setAddingToCart(true);
     try {
       await axios.post('/cart', { productId: product.id, quantity });
+      window.dispatchEvent(new Event('cartUpdated'));
       navigate('/cart');
     } catch (error) {
       console.error('Error adding to cart:', error);

@@ -44,7 +44,8 @@ const Checkout: React.FC = () => {
     setProcessing(true);
     try {
       await axios.post('/orders/checkout');
-      navigate('/order-history');
+      window.dispatchEvent(new Event('cartUpdated'));
+      navigate('/orders');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al procesar el pago');
     } finally {
