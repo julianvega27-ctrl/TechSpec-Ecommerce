@@ -49,7 +49,7 @@ const Security: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">SEGURIDAD</h1>
+        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">CONTRASEÑA</h1>
       </div>
 
       <div className="grid-container">
@@ -97,11 +97,11 @@ const Security: React.FC = () => {
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">CAMBIAR CONTRASEÑA</h3>
             {message && <div className="mb-4 p-3 bg-green-50 text-green-700 rounded text-sm font-medium">{message}</div>}
             {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm font-medium">{error}</div>}
-            
+
             <form className="space-y-6" onSubmit={handleSave}>
               <Input label="CONTRASEÑA ACTUAL" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
               <Input label="NUEVA CONTRASEÑA" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-              
+
               <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
                 <Button type="submit" variant="primary" disabled={isSaving}>
                   {isSaving ? 'GUARDANDO...' : 'ACTUALIZAR CONTRASEÑA'}

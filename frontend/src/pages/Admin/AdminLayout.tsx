@@ -1,12 +1,18 @@
 import React from 'react';
-import { Link, Outlet, Navigate } from 'react-router-dom';
+import { Link, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const AdminLayout: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) return <div className="p-10 text-center mono-data">Cargando...</div>;
   if (!user || user.role !== 'ADMIN') return <Navigate to="/" replace />;
+
+  const isActive = (path: string) => location.pathname.startsWith(path);
+  const activeClass = "flex items-center px-6 py-3 text-[var(--color-primary)] bg-[var(--color-surface-container)] font-medium border-r-2 border-[var(--color-primary)]";
+  const inactiveClass = "flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors";
+
   return (
     <div className="flex h-screen bg-[var(--color-surface)] overflow-hidden">
       {/* Sidebar */}
@@ -17,27 +23,27 @@ const AdminLayout: React.FC = () => {
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1">
             <li>
-              <Link to="/admin/dashboard" className="flex items-center px-6 py-3 text-[var(--color-primary)] bg-[var(--color-surface-container)] font-medium border-r-2 border-[var(--color-primary)]">
+              <Link to="/admin/dashboard" className={isActive('/admin/dashboard') ? activeClass : inactiveClass}>
                 Dashboard
               </Link>
             </li>
             <li>
-              <Link to="/admin/products" className="flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors">
+              <Link to="/admin/products" className={isActive('/admin/products') ? activeClass : inactiveClass}>
                 Productos
               </Link>
             </li>
             <li>
-              <Link to="/admin/categories" className="flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors">
+              <Link to="/admin/categories" className={isActive('/admin/categories') ? activeClass : inactiveClass}>
                 Categorías
               </Link>
             </li>
             <li>
-              <Link to="/admin/orders" className="flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors">
+              <Link to="/admin/orders" className={isActive('/admin/orders') ? activeClass : inactiveClass}>
                 Órdenes
               </Link>
             </li>
             <li>
-              <Link to="/admin/users" className="flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors">
+              <Link to="/admin/users" className={isActive('/admin/users') ? activeClass : inactiveClass}>
                 Usuarios
               </Link>
             </li>

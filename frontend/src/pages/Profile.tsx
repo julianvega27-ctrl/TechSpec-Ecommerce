@@ -12,6 +12,8 @@ const Profile: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
 
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/login');
@@ -32,6 +34,10 @@ const Profile: React.FC = () => {
       setMessage('');
       await axios.put('/users/profile', { name });
       setMessage('Perfil actualizado correctamente');
+      setIsEditing(false);
+      // Actualizamos el nombre localmente en el contexto si fuera necesario, 
+      // pero por ahora el context lo maneja o requiere recargar,
+      // asumiendo que user.name se actualizará o se mostrará `name`
     } catch (error) {
       setMessage('Error al actualizar el perfil');
     } finally {
@@ -80,7 +86,7 @@ const Profile: React.FC = () => {
               <Link to="/orders" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Historial de Órdenes</Link>
             </li>
             <li>
-              <Link to="/security" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Seguridad</Link>
+              <Link to="/security" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Contraseña</Link>
             </li>
             <li>
               <button onClick={handleLogout} className="text-[var(--color-error)] mt-8 block cursor-pointer bg-transparent border-none p-0 text-left w-full">Cerrar Sesión</button>
@@ -91,24 +97,52 @@ const Profile: React.FC = () => {
         {/* Main Content */}
         <div className="col-span-12 md:col-span-9 lg:col-span-6">
           <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-8">
-            <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">DATOS DE CONTACTO</h3>
-            {message && <div className="mb-4 p-3 bg-gray-50 text-[var(--color-primary)] rounded text-sm font-medium">{message}</div>}
-            
-            <form className="space-y-6" onSubmit={handleSave}>
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <Input label="NOMBRE COMPLETO" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <Input label="CORREO ELECTRÓNICO" type="email" value={user.email} disabled />
-              {user.role === 'ADMIN' && (
-                <Input label="ROL" type="text" value={user.role} disabled />
+            <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-2">
+              <h3 className="label-caps">DATOS DE CONTACTO</h3>
+              {!isEditing && (
+                <Button variant="secondary" onClick={() => setIsEditing(true)}>EDITAR</Button>
               )}
-              
-              <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
-                <Button type="submit" variant="primary" disabled={isSaving}>
-                  {isSaving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
-                </Button>
+            </div>
+
+            {message && <div className="mb-4 p-3 bg-gray-50 text-[var(--color-primary)] rounded text-sm font-medium">{message}</div>}
+
+            {!isEditing ? (
+              <div className="space-y-6">
+                <div>
+                  <p className="label-caps text-[var(--color-obsidian-light)] mb-1">NOMBRE COMPLETO</p>
+                  <p className="text-lg font-medium text-[var(--color-obsidian)]">{user.name}</p>
+                </div>
+                <div>
+                  <p className="label-caps text-[var(--color-obsidian-light)] mb-1">CORREO ELECTRÓNICO</p>
+                  <p className="text-lg font-medium text-[var(--color-obsidian)]">{user.email}</p>
+                </div>
+                {user.role === 'ADMIN' && (
+                  <div>
+                    <p className="label-caps text-[var(--color-obsidian-light)] mb-1">ROL</p>
+                    <p className="text-lg font-medium text-[var(--color-obsidian)]">{user.role}</p>
+                  </div>
+                )}
               </div>
-            </form>
+            ) : (
+              <form className="space-y-6" onSubmit={handleSave}>
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  <Input label="NOMBRE COMPLETO" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+                </div>
+                <Input label="CORREO ELECTRÓNICO" type="email" value={user.email} disabled />
+                {user.role === 'ADMIN' && (
+                  <Input label="ROL" type="text" value={user.role} disabled />
+                )}
+
+                <div className="pt-4 border-t border-[var(--color-outline-subtle)] flex gap-4">
+                  <Button type="button" variant="secondary" onClick={() => { setIsEditing(false); setName(user.name); }}>
+                    CANCELAR
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={isSaving}>
+                    {isSaving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>
