@@ -11,6 +11,13 @@ export const CategoryService = {
       },
     });
   },
+  async getAllCategoriesAdmin() {
+    return await prisma.category.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  },
 
   async getCategoryById(id: string) {
     return await prisma.category.findUnique({

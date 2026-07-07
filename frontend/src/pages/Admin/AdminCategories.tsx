@@ -36,7 +36,10 @@ const AdminCategories: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/categories');
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/admin/categories', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setCategories(res.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+const ORDER_STATUS_MAP: Record<string, string> = {
+  'PENDING': 'PENDIENTE',
+  'PROCESSING': 'PROCESANDO',
+  'SHIPPED': 'ENVIADO',
+  'DELIVERED': 'ENTREGADO',
+  'CANCELED': 'CANCELADO'
+};
 
 const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
@@ -77,7 +83,7 @@ const Dashboard: React.FC = () => {
                 <td className="py-4 px-6 text-[var(--color-obsidian)]">{order.user?.name}</td>
                 <td className="py-4 px-6">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-[var(--radius-badge)] label-caps ${order.status === 'PENDING' ? 'bg-[var(--color-surface-container-high)] text-[var(--color-obsidian)]' : 'bg-[var(--color-primary)] text-white'}`}>
-                    {order.status}
+                    {ORDER_STATUS_MAP[order.status] || order.status}
                   </span>
                 </td>
                 <td className="py-4 px-6 mono-data text-right font-bold">${Number(order.totalAmount).toFixed(2)}</td>

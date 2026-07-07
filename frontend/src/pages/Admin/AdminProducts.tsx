@@ -77,9 +77,10 @@ const AdminProducts: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
       const [prodRes, catRes] = await Promise.all([
-        axios.get('/products'),
-        axios.get('/categories')
+        axios.get('/admin/products', { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get('/admin/categories', { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setProducts(prodRes.data.products || []);
       setCategories(catRes.data || []);

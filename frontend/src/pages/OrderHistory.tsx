@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Badge } from '../components/ui/Indicators';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';const ORDER_STATUS_MAP: Record<string, string> = {
+  'PENDING': 'PENDIENTE',
+  'PROCESSING': 'PROCESANDO',
+  'SHIPPED': 'ENVIADO',
+  'DELIVERED': 'ENTREGADO',
+  'CANCELED': 'CANCELADO'
+};
 
 const OrderHistory: React.FC = () => {
   const { user, logout } = useAuth();
@@ -122,7 +128,7 @@ const OrderHistory: React.FC = () => {
                       <td className="py-4 px-4 mono-data font-medium text-[var(--color-obsidian)]">#{order.id.slice(0, 8).toUpperCase()}</td>
                       <td className="py-4 px-4 mono-data text-[var(--color-outline)]">{new Date(order.createdAt).toLocaleDateString()}</td>
                       <td className="py-4 px-4">
-                        <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
+                        <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_MAP[order.status] || order.status}</Badge>
                       </td>
                       <td className="py-4 px-4 mono-data text-right font-bold">${Number(order.totalAmount).toFixed(2)}</td>
                     </tr>

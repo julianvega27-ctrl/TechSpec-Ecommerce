@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const ORDER_STATUSES = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELED'];
+const ORDER_STATUS_MAP: Record<string, string> = {
+  'PENDING': 'PENDIENTE',
+  'PROCESSING': 'PROCESANDO',
+  'SHIPPED': 'ENVIADO',
+  'DELIVERED': 'ENTREGADO',
+  'CANCELED': 'CANCELADO'
+};
+
+const ORDER_STATUSES = Object.keys(ORDER_STATUS_MAP);
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -48,7 +56,7 @@ const AdminOrders: React.FC = () => {
       <div className="flex justify-between items-center border-b border-[var(--color-outline-subtle)] pb-4">
         <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">PEDIDOS</h1>
       </div>
-      
+
       {loading ? (
         <div className="mono-data text-center py-10">Cargando pedidos...</div>
       ) : (
@@ -65,8 +73,8 @@ const AdminOrders: React.FC = () => {
               </thead>
               <tbody>
                 {orders.map(o => (
-                  <tr 
-                    key={o.id} 
+                  <tr
+                    key={o.id}
                     onClick={() => setSelectedOrder(o)}
                     className={`border-b border-[var(--color-outline-subtle)] last:border-b-0 cursor-pointer hover:bg-gray-50 ${selectedOrder?.id === o.id ? 'bg-[var(--color-surface-container-high)]' : ''}`}
                   >
@@ -80,14 +88,15 @@ const AdminOrders: React.FC = () => {
                     </td>
                     <td className="py-4 px-6 mono-data">${Number(o.totalAmount).toFixed(2)}</td>
                     <td className="py-4 px-6">
-                      <select 
+                      <select
                         value={o.status}
                         onChange={(e) => updateStatus(o.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-xs rounded border border-[var(--color-outline-subtle)] px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] font-bold"
+                        disabled={o.status === 'DELIVERED' || o.status === 'CANCELED'}
+                        className="text-xs rounded border border-[var(--color-outline-subtle)] px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] font-bold disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {ORDER_STATUSES.map(s => (
-                          <option key={s} value={s}>{s}</option>
+                          <option key={s} value={s}>{ORDER_STATUS_MAP[s]}</option>
                         ))}
                       </select>
                     </td>
@@ -106,7 +115,7 @@ const AdminOrders: React.FC = () => {
             {selectedOrder ? (
               <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-6 sticky top-6">
                 <h3 className="label-caps mb-4 border-b border-[var(--color-outline-subtle)] pb-2">DETALLE DEL PEDIDO</h3>
-                
+
                 <div className="space-y-4 mb-6">
                   <div>
                     <span className="block text-xs text-[var(--color-obsidian-light)] uppercase">ID de Pedido</span>
@@ -124,7 +133,7 @@ const AdminOrders: React.FC = () => {
                   <div>
                     <span className="block text-xs text-[var(--color-obsidian-light)] uppercase">Estado Actual</span>
                     <span className="inline-block mt-1 px-3 py-1 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] text-xs font-bold rounded">
-                      {selectedOrder.status}
+                      {ORDER_STATUS_MAP[selectedOrder.status] || selectedOrder.status}
                     </span>
                   </div>
                 </div>

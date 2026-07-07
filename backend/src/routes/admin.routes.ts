@@ -25,11 +25,13 @@ router.get('/orders', AdminController.getAllOrders);
 router.put('/orders/:id/status', AdminController.updateOrderStatus);
 
 // Products
+router.get('/products', AdminController.getAllProducts);
 router.post('/products', upload.array('images', 5), AdminController.createProduct);
 router.put('/products/:id', upload.array('images', 5), AdminController.updateProduct);
 router.delete('/products/:id', AdminController.deleteProduct);
 
 // Categories
+router.get('/categories', AdminController.getAllCategories);
 router.post('/categories', AdminController.createCategory);
 router.put('/categories/:id', AdminController.updateCategory);
 router.delete('/categories/:id', AdminController.deleteCategory);

@@ -78,6 +78,28 @@ export const AdminController = {
     }
   },
 
+  async getAllProducts(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = req.query.search as string;
+      const categoryId = req.query.category as string;
+      const result = await ProductService.getProductsAdmin({ page, limit, search, categoryId });
+      return res.status(200).json(result);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error fetching products' });
+    }
+  },
+
+  async getAllCategories(req: Request, res: Response) {
+    try {
+      const categories = await CategoryService.getAllCategoriesAdmin();
+      return res.status(200).json(categories);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Error fetching categories' });
+    }
+  },
+
   async createProduct(req: Request, res: Response) {
     try {
       const data = { ...req.body };
@@ -197,6 +219,9 @@ export const AdminController = {
       const category = await CategoryService.createCategory(req.body);
       return res.status(201).json(category);
     } catch (error: any) {
+      if (error.code === 'P2002') {
+        return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
+      }
       return res.status(500).json({ error: error.message || 'Error creating category' });
     }
   },
@@ -207,6 +232,9 @@ export const AdminController = {
       const category = await CategoryService.updateCategory(id, req.body);
       return res.status(200).json(category);
     } catch (error: any) {
+      if (error.code === 'P2002') {
+        return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
+      }
       return res.status(500).json({ error: error.message || 'Error updating category' });
     }
   },
