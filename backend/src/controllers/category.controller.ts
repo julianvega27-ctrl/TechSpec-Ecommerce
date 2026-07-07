@@ -5,7 +5,7 @@ export const CategoryController = {
   async getAllCategories(req: Request, res: Response, next: NextFunction) {
     try {
       const categories = await CategoryService.getAllCategories();
-      res.status(200).json(categories);
+      res.status(200).json({ data: categories });
     } catch (error) {
       next(error);
     }
@@ -20,7 +20,7 @@ export const CategoryController = {
         return res.status(404).json({ message: 'Category not found' });
       }
 
-      res.status(200).json(category);
+      res.status(200).json({ data: category });
     } catch (error) {
       next(error);
     }

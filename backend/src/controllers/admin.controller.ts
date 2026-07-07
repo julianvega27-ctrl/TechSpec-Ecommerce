@@ -14,7 +14,7 @@ export const AdminController = {
       if (!settings) {
         return res.status(404).json({ error: 'Settings section not found' });
       }
-      return res.status(200).json(settings);
+      return res.status(200).json({ data: settings });
     } catch (error: any) {
       return res.status(500).json({ error: error.message || 'Error fetching settings' });
     }
@@ -24,7 +24,7 @@ export const AdminController = {
     try {
       const section = req.params.section as string;
       const updated = await AdminService.updateSiteSettings(section, req.body);
-      return res.status(200).json(updated);
+      return res.status(200).json({ data: updated });
     } catch (error: any) {
       return res.status(500).json({ error: error.message || 'Error updating settings' });
     }
@@ -33,7 +33,7 @@ export const AdminController = {
   async getDashboardStats(req: Request, res: Response) {
     try {
       const stats = await AdminService.getDashboardStats();
-      return res.status(200).json(stats);
+      return res.status(200).json({ data: stats });
     } catch (error: any) {
       return res.status(500).json({ error: error.message || 'Error fetching dashboard stats' });
     }

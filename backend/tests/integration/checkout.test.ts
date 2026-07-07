@@ -11,6 +11,7 @@ describe('Cart & Checkout Integration', () => {
 
   beforeAll(async () => {
     // Clear data
+    await prisma.orderItem.deleteMany();
     await prisma.order.deleteMany();
     await prisma.cartItem.deleteMany();
     await prisma.product.deleteMany();
@@ -53,6 +54,7 @@ describe('Cart & Checkout Integration', () => {
   });
 
   afterAll(async () => {
+    await prisma.orderItem.deleteMany();
     await prisma.order.deleteMany();
     await prisma.cartItem.deleteMany();
     await prisma.product.deleteMany();
@@ -89,7 +91,7 @@ describe('Cart & Checkout Integration', () => {
   describe('Checkout API', () => {
     it('should create an order from cart', async () => {
       const response = await request(app)
-        .post('/api/orders')
+        .post('/api/orders/checkout')
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(response.status).toBe(201);
@@ -106,7 +108,7 @@ describe('Cart & Checkout Integration', () => {
 
     it('should get user orders', async () => {
       const response = await request(app)
-        .get('/api/orders')
+        .get('/api/orders/my-orders')
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(response.status).toBe(200);

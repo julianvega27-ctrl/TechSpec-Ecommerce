@@ -10,6 +10,11 @@ describe('Admin Integration', () => {
 
   beforeAll(async () => {
     // Clear data
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.cartItem.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.category.deleteMany();
     await prisma.siteSettings.deleteMany();
     await prisma.user.deleteMany();
 
@@ -39,6 +44,11 @@ describe('Admin Integration', () => {
   });
 
   afterAll(async () => {
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.cartItem.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.category.deleteMany();
     await prisma.siteSettings.deleteMany();
     await prisma.user.deleteMany();
   });

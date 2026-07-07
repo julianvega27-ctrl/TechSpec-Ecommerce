@@ -10,6 +10,9 @@ describe('Catalog Integration (Products & Categories)', () => {
 
   beforeAll(async () => {
     // Clear data
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.cartItem.deleteMany();
     await prisma.product.deleteMany();
     await prisma.category.deleteMany();
     await prisma.user.deleteMany();
@@ -32,6 +35,9 @@ describe('Catalog Integration (Products & Categories)', () => {
   });
 
   afterAll(async () => {
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.cartItem.deleteMany();
     await prisma.product.deleteMany();
     await prisma.category.deleteMany();
     await prisma.user.deleteMany();

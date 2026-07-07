@@ -5,10 +5,22 @@ import { prisma } from '../setup.js';
 
 describe('Auth Integration', () => {
   beforeAll(async () => {
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.cartItem.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.siteSettings.deleteMany();
     await prisma.user.deleteMany();
   });
 
   afterAll(async () => {
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.cartItem.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.siteSettings.deleteMany();
     await prisma.user.deleteMany();
   });
 
@@ -40,7 +52,7 @@ describe('Auth Integration', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
+      expect(response.body).toHaveProperty('message');
     });
   });
 

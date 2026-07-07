@@ -5,6 +5,9 @@ import { upload } from '../middlewares/upload.js';
 
 const router = Router();
 
+// Public routes
+router.get('/settings/:section', AdminController.getSettings);
+
 // Secure all admin routes
 router.use(requireAuth);
 router.use(requireAdmin);
@@ -12,8 +15,7 @@ router.use(requireAdmin);
 // Dashboard / Analytics
 router.get('/dashboard', AdminController.getDashboardStats);
 
-// Settings
-router.get('/settings/:section', AdminController.getSettings);
+// Settings (Protected)
 router.put('/settings/:section', AdminController.updateSettings);
 
 // Users

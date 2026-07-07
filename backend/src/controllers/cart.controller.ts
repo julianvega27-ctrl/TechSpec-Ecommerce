@@ -10,7 +10,7 @@ export const CartController = {
       }
 
       const cartItems = await CartService.getCart(userId);
-      res.status(200).json(cartItems);
+      res.status(200).json({ data: cartItems });
     } catch (error) {
       next(error);
     }
@@ -29,7 +29,7 @@ export const CartController = {
       }
 
       const cartItem = await CartService.addToCart(userId, productId, quantity);
-      res.status(200).json(cartItem);
+      res.status(201).json({ data: cartItem });
     } catch (error) {
       next(error);
     }
@@ -50,7 +50,7 @@ export const CartController = {
       }
 
       const cartItem = await CartService.updateQuantity(userId, id as string, quantity);
-      res.status(200).json(cartItem);
+      res.status(200).json({ data: cartItem });
     } catch (error: any) {
       if (error.message === 'Cart item not found') {
         return res.status(404).json({ message: error.message });
