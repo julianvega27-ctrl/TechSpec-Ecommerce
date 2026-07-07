@@ -22,8 +22,9 @@ const Checkout: React.FC = () => {
     const fetchCart = async () => {
       try {
         const response = await axios.get('/cart');
-        setCartItems(response.data);
-        if (response.data.length === 0) {
+        const payload = response.data.data || response.data;
+        setCartItems(payload);
+        if (payload.length === 0) {
           navigate('/cart');
         }
       } catch (err) {

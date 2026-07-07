@@ -10,7 +10,8 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get('/products?limit=4');
-        setFeaturedProducts(response.data.products || []);
+        const payload = response.data.data || response.data;
+        setFeaturedProducts(payload.products || []);
       } catch (error) {
         console.error('Error fetching featured products:', error);
       }

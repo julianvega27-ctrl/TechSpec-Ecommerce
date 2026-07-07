@@ -27,7 +27,8 @@ const AdminOrders: React.FC = () => {
       const response = await axios.get('/admin/orders', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setOrders(response.data || []);
+      const payload = response.data.data || response.data;
+      setOrders(payload || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {

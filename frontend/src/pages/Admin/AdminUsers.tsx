@@ -21,7 +21,8 @@ const AdminUsers: React.FC = () => {
       const response = await axios.get('/admin/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUsers(response.data || []);
+      const payload = response.data.data || response.data;
+      setUsers(payload || []);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {

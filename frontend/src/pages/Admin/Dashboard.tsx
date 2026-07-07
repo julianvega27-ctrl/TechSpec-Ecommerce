@@ -16,7 +16,8 @@ const Dashboard: React.FC = () => {
     const fetchStats = async () => {
       try {
         const response = await axios.get('/admin/dashboard');
-        setStats(response.data);
+        const payload = response.data.data || response.data;
+        setStats(payload);
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
       } finally {

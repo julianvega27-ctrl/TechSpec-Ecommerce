@@ -19,7 +19,8 @@ const Cart: React.FC = () => {
     const fetchCart = async () => {
       try {
         const response = await axios.get('/cart');
-        setCartItems(response.data);
+        const payload = response.data.data || response.data;
+        setCartItems(payload);
       } catch (error) {
         console.error('Error fetching cart:', error);
       } finally {

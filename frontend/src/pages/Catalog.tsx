@@ -16,7 +16,8 @@ const Catalog: React.FC = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get('/categories');
-        setCategories(response.data);
+        const payload = response.data.data || response.data;
+        setCategories(payload);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -33,9 +34,10 @@ const Catalog: React.FC = () => {
           url += `&category=${selectedCategory}`;
         }
         const response = await axios.get(url);
-        setProducts(response.data.products || []);
-        setTotalPages(response.data.totalPages || 1);
-        setTotal(response.data.total || 0);
+        const payload = response.data.data || response.data;
+        setProducts(payload.products || []);
+        setTotalPages(payload.totalPages || 1);
+        setTotal(payload.total || 0);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {

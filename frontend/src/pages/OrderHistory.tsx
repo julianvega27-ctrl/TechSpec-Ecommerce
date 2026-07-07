@@ -30,7 +30,8 @@ const OrderHistory: React.FC = () => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get('/orders/my-orders');
-        setOrders(response.data);
+        const payload = response.data.data || response.data;
+        setOrders(payload);
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {

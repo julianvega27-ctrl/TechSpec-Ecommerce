@@ -23,9 +23,10 @@ const ProductDetail: React.FC = () => {
       if (!id) return;
       try {
         const response = await axios.get(`/products/${id}`);
-        setProduct(response.data);
-        if (response.data.imageUrl) {
-          setSelectedImage(response.data.imageUrl);
+        const payload = response.data.data || response.data;
+        setProduct(payload);
+        if (payload.imageUrl) {
+          setSelectedImage(payload.imageUrl);
         }
       } catch (error) {
         console.error('Error fetching product:', error);

@@ -16,7 +16,8 @@ const Navbar: React.FC = () => {
       }
       try {
         const response = await axios.get('/cart');
-        const count = response.data.reduce((acc: number, item: any) => acc + item.quantity, 0);
+        const payload = response.data.data || response.data;
+        const count = payload.reduce((acc: number, item: any) => acc + item.quantity, 0);
         setItemCount(count);
       } catch (err) {
         console.error('Error fetching cart count:', err);

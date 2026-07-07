@@ -44,11 +44,12 @@ const Settings: React.FC = () => {
     const fetchSettings = async () => {
       try {
         const response = await axios.get('/admin/settings/HOME_HERO');
-        if (response.data) {
-          setValue('title', response.data.content?.title || 'PRECISIÓN EN MOVIMIENTO');
-          setValue('subtitle', response.data.content?.subtitle || 'Equipamiento técnico de alto rendimiento diseñado para profesionales.');
-          if (response.data.imageUrl) {
-            setPreviewImage(response.data.imageUrl);
+        const payload = response.data.data || response.data;
+        if (payload) {
+          setValue('title', payload.content?.title || 'PRECISIÓN EN MOVIMIENTO');
+          setValue('subtitle', payload.content?.subtitle || 'Equipamiento técnico de alto rendimiento diseñado para profesionales.');
+          if (payload.imageUrl) {
+            setPreviewImage(payload.imageUrl);
           }
         }
       } catch (error) {
