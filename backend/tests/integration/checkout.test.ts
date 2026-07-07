@@ -39,6 +39,10 @@ describe('Cart & Checkout Integration', () => {
     const product = await prisma.product.create({
       data: {
         name: 'Book 1',
+        description: 'A great book',
+        brand: 'TechBrand',
+        imageUrl: 'http://example.com/img.jpg',
+        imagePublicId: 'img123',
         price: 15.00,
         stock: 10,
         categoryId: category.id,

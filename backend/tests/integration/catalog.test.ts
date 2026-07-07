@@ -71,6 +71,9 @@ describe('Catalog Integration (Products & Categories)', () => {
         data: {
           name: 'Laptop',
           description: 'A powerful laptop',
+          brand: 'TechBrand',
+          imageUrl: 'http://example.com/img.jpg',
+          imagePublicId: 'img123',
           price: 999.99,
           stock: 10,
           isActive: true,
