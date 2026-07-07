@@ -35,6 +35,10 @@ app.get("/", (_req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Servidor iniciado en http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`Servidor iniciado en http://localhost:${PORT}`);
+    });
+}
+
+export default app;
