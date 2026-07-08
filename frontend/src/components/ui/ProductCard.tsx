@@ -7,8 +7,6 @@ export interface ProductCardProps {
   brand: string;
   price: number;
   imageUrl: string;
-  sku?: string;
-  category?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -17,8 +15,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   price,
   imageUrl,
-  sku = 'SKU-000',
-  category = 'CATEGORY'
 }) => {
   return (
     <Link to={`/product/${id}`} className="group block h-full">
