@@ -1,57 +1,42 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service.js';
+import { catchAsync } from '../utils/catchAsync.js';
 
 export class AuthController {
-  static async register(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await AuthService.register(req.body);
-      res.status(201).json({
-        success: true,
-        message: 'Usuario registrado exitosamente',
-        data
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  static register = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const data = await AuthService.register(req.body);
+    res.status(201).json({
+      success: true,
+      message: 'Usuario registrado exitosamente',
+      data
+    });
+  });
 
-  static async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await AuthService.login(req.body);
-      res.status(200).json({
-        success: true,
-        message: 'Sesión iniciada exitosamente',
-        data
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  static login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const data = await AuthService.login(req.body);
+    res.status(200).json({
+      success: true,
+      message: 'Sesión iniciada exitosamente',
+      data
+    });
+  });
 
-  static async googleLogin(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { idToken } = req.body;
-      const data = await AuthService.googleOAuth(idToken);
-      res.status(200).json({
-        success: true,
-        message: 'Autenticación con Google exitosa',
-        data
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  static googleLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { idToken } = req.body;
+    const data = await AuthService.googleOAuth(idToken);
+    res.status(200).json({
+      success: true,
+      message: 'Autenticación con Google exitosa',
+      data
+    });
+  });
 
-  static async recoverPassword(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email } = req.body;
-      const data = await AuthService.recoverPassword(email);
-      res.status(200).json({
-        success: true,
-        message: data.message
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  static recoverPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    const data = await AuthService.recoverPassword(email);
+    res.status(200).json({
+      success: true,
+      message: data.message
+    });
+  });
 }

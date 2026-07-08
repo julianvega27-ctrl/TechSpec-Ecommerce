@@ -63,6 +63,13 @@ describe('Catalog Integration (Products & Categories)', () => {
       expect(response.body.data.length).toBe(1);
       expect(response.body.data[0].name).toBe('Electronics');
     });
+
+    it('should return 404 if category does not exist', async () => {
+      const fakeId = '00000000-0000-0000-0000-000000000000';
+      const response = await request(app).get(`/api/categories/${fakeId}`);
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBeDefined();
+    });
   });
 
   describe('Products API', () => {

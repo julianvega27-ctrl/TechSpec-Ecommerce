@@ -17,10 +17,10 @@ vi.mock('../../src/utils/prisma.js', () => ({
   },
 }));
 vi.mock('google-auth-library', () => {
+  class MockOAuth2Client {}
+  MockOAuth2Client.prototype.verifyIdToken = vi.fn();
   return {
-    OAuth2Client: class {
-      verifyIdToken = vi.fn();
-    },
+    OAuth2Client: MockOAuth2Client,
   };
 });
 
@@ -74,6 +74,72 @@ describe('AuthService', () => {
 
       await expect(AuthService.login({ email: 'test@test.com', password: 'password' }))
         .rejects.toThrow(AppError);
+    });
+  });
+
+  describe('googleOAuth', () => {
+    it('should throw AppError if verifyIdToken fails', async () => {
+      // Mock verifyIdToken for the google client
+      // The module level instance requires us to mock the prototype or we can just mock it via google-auth-library
+      const { OAuth2Client } = await import('google-auth-library');
+      vi.mocked(OAuth2Client.prototype.verifyIdToken).mockRejectedValueOnce(new Error('Invalid token'));
+
+      await expect(AuthService.googleOAuth('bad_token')).rejects.toThrow(AppError);
+      await expect(AuthService.googleOAuth('bad_token')).rejects.toThrow('Fallo en la autenticación con Google');
+    });
+
+    it('should create new user if user does not exist', async () => {
+      const { OAuth2Client } = await import('google-auth-library');
+      const mockTicket = {
+        getPayload: () => ({ sub: 'google123', email: 'new@test.com', name: 'New User' })
+      };
+      
+      vi.mocked(OAuth2Client.prototype.verifyIdToken).mockResolvedValueOnce(mockTicket as any);
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
+      vi.mocked(prisma.user.create).mockResolvedValueOnce({ id: 'uuid-1', role: 'CLIENT', name: 'New User', email: 'new@test.com' } as any);
+      vi.mocked(jwt.sign).mockReturnValue('token' as any);
+
+      const result = await AuthService.googleOAuth('valid_token');
+
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: { email: 'new@test.com', name: 'New User', googleId: 'google123' }
+      });
+      expect(result.token).toBe('token');
+      expect(result.user.email).toBe('new@test.com');
+    });
+
+    it('should link google account if email exists but no googleId', async () => {
+      const { OAuth2Client } = await import('google-auth-library');
+      const mockTicket = {
+        getPayload: () => ({ sub: 'google123', email: 'exist@test.com', name: 'Exist User' })
+      };
+      
+      vi.mocked(OAuth2Client.prototype.verifyIdToken).mockResolvedValueOnce(mockTicket as any);
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({ id: 'uuid-2', role: 'CLIENT', email: 'exist@test.com', googleId: null } as any);
+      vi.mocked(prisma.user.update).mockResolvedValueOnce({ id: 'uuid-2', role: 'CLIENT', email: 'exist@test.com', googleId: 'google123' } as any);
+      vi.mocked(jwt.sign).mockReturnValue('token' as any);
+
+      const result = await AuthService.googleOAuth('valid_token');
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { email: 'exist@test.com' },
+        data: { googleId: 'google123' }
+      });
+      expect(result.token).toBe('token');
+    });
+  });
+
+  describe('recoverPassword', () => {
+    it('should return generic message if user does not exist', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
+      const result = await AuthService.recoverPassword('notfound@test.com');
+      expect(result.message).toBe('Si el correo existe, se enviarán instrucciones.');
+    });
+
+    it('should return generic message if user exists', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({ id: 'uuid' } as any);
+      const result = await AuthService.recoverPassword('found@test.com');
+      expect(result.message).toBe('Si el correo existe, se enviarán instrucciones.');
     });
   });
 });
