@@ -35,9 +35,17 @@ app.get("/", (_req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
     app.listen(PORT, () => {
-        console.log(`Servidor iniciado en http://localhost:${PORT}`);
+        console.log(`TechSpec API iniciada.`);
+        console.log(`Puerto: ${PORT}`);
+
+        if (process.env.NODE_ENV === "development") {
+            console.log(`URL: http://localhost:${PORT}`);
+            console.log(`Swagger: http://localhost:${PORT}/api-docs`);
+        } else {
+            console.log("Ejecutándose en entorno de producción.");
+        }
     });
 }
 
