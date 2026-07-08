@@ -23,7 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <Link to={`/product/${id}`} className="group block h-full">
       <div className="relative h-full flex flex-col bg-transparent transition-all duration-300 border border-transparent hover:border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] overflow-hidden">
-        
+
         <div className="relative aspect-square w-full bg-[var(--color-surface-container)] flex items-center justify-center p-4">
           {imageUrl ? (
             <img src={imageUrl} alt={name} className="object-contain w-full h-full" />
@@ -32,11 +32,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <span className="label-caps">No Image</span>
             </div>
           )}
-          
+
           {/* Hover overlay with metadata */}
           <div className="absolute inset-0 bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
-            <span className="mono-data text-[var(--color-obsidian)] mb-2">ID: {sku}</span>
-            <span className="label-caps text-[var(--color-primary)]">{category}</span>
+            <span className="mono-data text-[var(--color-obsidian)] mb-2"></span>
+            <span className="label-caps text-[var(--color-primary)]"></span>
           </div>
         </div>
 

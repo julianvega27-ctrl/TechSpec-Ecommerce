@@ -71,23 +71,23 @@ const Catalog: React.FC = () => {
             <h3 className="label-caps mb-4">Categorías</h3>
             <ul className="space-y-3">
               <li className="flex items-center">
-                <input 
-                  type="radio" 
+                <input
+                  type="radio"
                   name="category"
                   checked={selectedCategory === ''}
                   onChange={() => { setSelectedCategory(''); setPage(1); }}
-                  className="mr-2 accent-[var(--color-primary)]" 
+                  className="mr-2 accent-[var(--color-primary)]"
                 />
                 <span className="text-[var(--color-obsidian)]">Todas</span>
               </li>
               {categories.map(cat => (
                 <li key={cat.id} className="flex items-center">
-                  <input 
-                    type="radio" 
+                  <input
+                    type="radio"
                     name="category"
                     checked={selectedCategory === cat.id}
                     onChange={() => { setSelectedCategory(cat.id); setPage(1); }}
-                    className="mr-2 accent-[var(--color-primary)]" 
+                    className="mr-2 accent-[var(--color-primary)]"
                   />
                   <span className="text-[var(--color-obsidian)]">{cat.name}</span>
                 </li>
@@ -96,7 +96,7 @@ const Catalog: React.FC = () => {
           </div>
           <div className="mb-8">
             <h3 className="label-caps mb-4">Precio</h3>
-            <select 
+            <select
               className="w-full border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none"
               value={sortOption}
               onChange={(e) => { setSortOption(e.target.value); setPage(1); }}
@@ -112,15 +112,15 @@ const Catalog: React.FC = () => {
         <div className="col-span-12 md:col-span-9">
           <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-4">
             <span className="mono-data text-sm text-[var(--color-obsidian-light)]">{total} RESULTADOS</span>
-            <input 
-              type="text" 
-              placeholder="Buscar..." 
+            <input
+              type="text"
+              placeholder="Buscar..."
               className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none w-64"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
               <div className="col-span-full text-center py-12 text-gray-500 mono-data">CARGANDO...</div>
@@ -137,20 +137,20 @@ const Catalog: React.FC = () => {
           {totalPages > 1 && (
             <div className="mt-12 flex justify-center border-t border-[var(--color-outline-subtle)] pt-8">
               <div className="flex items-center space-x-2">
-                <Button 
-                  variant="secondary" 
-                  className="px-3" 
+                <Button
+                  variant="secondary"
+                  className="px-3"
                   disabled={page === 1}
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                 >&lt;</Button>
-                
+
                 <span className="text-[var(--color-obsidian)] px-4 font-bold mono-data">
                   {page} / {totalPages}
                 </span>
 
-                <Button 
-                  variant="secondary" 
-                  className="px-3" 
+                <Button
+                  variant="secondary"
+                  className="px-3"
                   disabled={page === totalPages}
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 >&gt;</Button>

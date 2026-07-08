@@ -22,13 +22,13 @@ const Home: React.FC = () => {
   return (
     <div>
       <Hero />
-      
+
       <section className="page-wrapper py-16">
         <div className="flex justify-between items-end mb-8 border-b border-[var(--color-outline-subtle)] pb-4">
           <h2 className="text-2xl font-bold text-[var(--color-obsidian)]">PRODUCTOS DESTACADOS</h2>
           <span className="label-caps text-[var(--color-primary)] cursor-pointer hover:underline">Ver Todo</span>
         </div>
-        
+
         <div className="grid-container">
           {featuredProducts.length > 0 ? (
             featuredProducts.map(product => (

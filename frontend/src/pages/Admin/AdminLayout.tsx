@@ -61,9 +61,9 @@ const AdminLayout: React.FC = () => {
         <header className="h-16 bg-white border-b border-[var(--color-outline-subtle)] flex items-center justify-between px-8">
           <h2 className="label-caps text-[var(--color-outline)]">PANEL DE CONTROL</h2>
           <div className="flex items-center gap-4">
-            <span className="mono-data text-sm">ADMIN: system_root</span>
+            <span className="mono-data text-sm">ADMIN: {user?.name}</span>
             <div className="w-8 h-8 rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] flex items-center justify-center border border-[var(--color-outline-subtle)]">
-              <span className="label-caps">SR</span>
+              <span className="label-caps">{user?.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}</span>
             </div>
           </div>
         </header>

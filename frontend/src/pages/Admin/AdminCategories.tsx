@@ -127,9 +127,9 @@ const AdminCategories: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-[var(--color-outline-subtle)] pb-4">
         <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">CATEGORÍAS</h1>
-        <Button onClick={() => handleOpenModal()}>NUEVA CATEGORÍA</Button>
+        <Button onClick={() => handleOpenModal()}>AGREGAR</Button>
       </div>
-      
+
       {loading ? (
         <div className="mono-data text-center py-10">Cargando categorías...</div>
       ) : (
@@ -149,7 +149,7 @@ const AdminCategories: React.FC = () => {
                   <td className="py-4 px-6 text-[var(--color-obsidian)] font-medium">{c.name}</td>
                   <td className="py-4 px-6 text-[var(--color-obsidian-light)]">{c.description || '-'}</td>
                   <td className="py-4 px-6">
-                    <button 
+                    <button
                       onClick={() => toggleStatus(c)}
                       className={`px-3 py-1 rounded-full text-xs font-bold ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
                     >
@@ -179,10 +179,10 @@ const AdminCategories: React.FC = () => {
             <h2 className="text-2xl font-bold text-[var(--color-obsidian)] mb-6">
               {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
             </h2>
-            
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <FormField label="Nombre" name="name" register={register} error={errors.name?.message} />
-              
+
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Descripción</label>
                 <textarea

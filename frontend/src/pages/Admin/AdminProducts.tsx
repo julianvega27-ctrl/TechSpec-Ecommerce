@@ -101,10 +101,10 @@ const AdminProducts: React.FC = () => {
       setValue('stock', product.stock);
       setValue('categoryId', product.categoryId);
       setValue('isActive', product.isActive);
-      
+
       const parsedSpecs = product.specifications || [];
       setValue('specifications', parsedSpecs);
-      
+
       // Load previews for existing images
       const existingPreviews = [product.imageUrl];
       if (product.images && Array.isArray(product.images)) {
@@ -142,7 +142,7 @@ const AdminProducts: React.FC = () => {
       formData.append('stock', data.stock.toString());
       formData.append('categoryId', data.categoryId);
       formData.append('isActive', data.isActive.toString());
-      
+
       if (data.specifications && data.specifications.length > 0) {
         formData.append('specifications', JSON.stringify(data.specifications));
       }
@@ -202,9 +202,9 @@ const AdminProducts: React.FC = () => {
       const formData = new FormData();
       formData.append('isActive', String(!product.isActive));
       await axios.put(`/admin/products/${product.id}`, formData, {
-        headers: { 
+        headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         }
       });
       await fetchData();
@@ -218,9 +218,9 @@ const AdminProducts: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-[var(--color-outline-subtle)] pb-4">
         <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">PRODUCTOS</h1>
-        <Button onClick={() => handleOpenModal()}>NUEVO PRODUCTO</Button>
+        <Button onClick={() => handleOpenModal()}>AGREGAR</Button>
       </div>
-      
+
       {loading ? (
         <div className="mono-data text-center py-10">Cargando productos...</div>
       ) : (
@@ -248,7 +248,7 @@ const AdminProducts: React.FC = () => {
                   <td className="py-4 px-6 mono-data">${Number(p.price).toFixed(2)}</td>
                   <td className="py-4 px-6 mono-data">{p.stock}</td>
                   <td className="py-4 px-6">
-                    <button 
+                    <button
                       onClick={() => toggleStatus(p)}
                       className={`px-3 py-1 rounded-full text-xs font-bold ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
                     >
@@ -278,13 +278,13 @@ const AdminProducts: React.FC = () => {
             <h2 className="text-2xl font-bold text-[var(--color-obsidian)] mb-6">
               {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
             </h2>
-            
+
             <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Nombre" name="name" register={register} error={errors.name?.message} />
                 <FormField label="Marca" name="brand" register={register} error={errors.brand?.message} />
               </div>
-              
+
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Descripción</label>
                 <textarea
@@ -327,17 +327,17 @@ const AdminProducts: React.FC = () => {
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 mb-2 items-start">
                     <div className="flex-1">
-                      <input 
-                        {...register(`specifications.${index}.label`)} 
-                        placeholder="Ej. Memoria RAM" 
+                      <input
+                        {...register(`specifications.${index}.label`)}
+                        placeholder="Ej. Memoria RAM"
                         className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] px-2 py-1 text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none"
                       />
                       {errors.specifications?.[index]?.label && <p className="text-xs text-red-500 mt-1">{errors.specifications[index].label?.message}</p>}
                     </div>
                     <div className="flex-1">
-                      <input 
-                        {...register(`specifications.${index}.value`)} 
-                        placeholder="Ej. 16GB DDR5" 
+                      <input
+                        {...register(`specifications.${index}.value`)}
+                        placeholder="Ej. 16GB DDR5"
                         className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] px-2 py-1 text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none"
                       />
                       {errors.specifications?.[index]?.value && <p className="text-xs text-red-500 mt-1">{errors.specifications[index].value?.message}</p>}
