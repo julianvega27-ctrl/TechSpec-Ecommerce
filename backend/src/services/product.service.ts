@@ -2,8 +2,8 @@ import prisma from '../utils/prisma.js';
 import { v2 as cloudinary } from 'cloudinary';
 
 export const ProductService = {
-  async getProducts(params: { page: number; limit: number; categoryId?: string | undefined; search?: string | undefined }) {
-    const { page, limit, categoryId, search } = params;
+  async getProducts(params: { page: number; limit: number; categoryId?: string | undefined; search?: string | undefined; sort?: string | undefined }) {
+    const { page, limit, categoryId, search, sort } = params;
     const skip = (page - 1) * limit;
 
     const whereClause: any = {
@@ -22,14 +22,19 @@ export const ProductService = {
       ];
     }
 
+    let orderBy: any = { createdAt: 'desc' };
+    if (sort === 'price_asc') {
+      orderBy = { price: 'asc' };
+    } else if (sort === 'price_desc') {
+      orderBy = { price: 'desc' };
+    }
+
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where: whereClause,
         skip,
         take: limit,
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy,
         include: {
           category: true,
         },

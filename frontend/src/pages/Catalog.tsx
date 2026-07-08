@@ -10,6 +10,8 @@ const Catalog: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortOption, setSortOption] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,6 +35,14 @@ const Catalog: React.FC = () => {
         if (selectedCategory) {
           url += `&category=${selectedCategory}`;
         }
+        if (searchQuery) {
+          url += `&search=${encodeURIComponent(searchQuery)}`;
+        }
+        if (sortOption === 'Menor a Mayor') {
+          url += `&sort=price_asc`;
+        } else if (sortOption === 'Mayor a Menor') {
+          url += `&sort=price_desc`;
+        }
         const response = await axios.get(url);
         const payload = response.data.data || response.data;
         setProducts(payload.products || []);
@@ -45,7 +55,7 @@ const Catalog: React.FC = () => {
       }
     };
     fetchProducts();
-  }, [page, selectedCategory]);
+  }, [page, selectedCategory, searchQuery, sortOption]);
 
   return (
     <div className="page-wrapper py-8">
@@ -86,10 +96,15 @@ const Catalog: React.FC = () => {
           </div>
           <div className="mb-8">
             <h3 className="label-caps mb-4">Precio</h3>
-            <div className="flex gap-2">
-              <input type="number" placeholder="Min" className="w-full p-2 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] mono-data text-sm" />
-              <input type="number" placeholder="Max" className="w-full p-2 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] mono-data text-sm" />
-            </div>
+            <select 
+              className="w-full border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none"
+              value={sortOption}
+              onChange={(e) => { setSortOption(e.target.value); setPage(1); }}
+            >
+              <option value="">Destacados</option>
+              <option value="Menor a Mayor">Menor a Mayor</option>
+              <option value="Mayor a Menor">Mayor a Menor</option>
+            </select>
           </div>
         </aside>
 
@@ -97,11 +112,13 @@ const Catalog: React.FC = () => {
         <div className="col-span-12 md:col-span-9">
           <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-4">
             <span className="mono-data text-sm text-[var(--color-obsidian-light)]">{total} RESULTADOS</span>
-            <select className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] label-caps text-[var(--color-obsidian)] outline-none">
-              <option>Ordenar: Destacados</option>
-              <option>Precio: Menor a Mayor</option>
-              <option>Precio: Mayor a Menor</option>
-            </select>
+            <input 
+              type="text" 
+              placeholder="Buscar..." 
+              className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none w-64"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+            />
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
