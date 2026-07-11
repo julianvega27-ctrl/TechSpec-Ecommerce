@@ -8,7 +8,7 @@ const Hero: React.FC = () => {
       <div className="page-wrapper py-16 md:py-32">
         <div className="grid-container">
           <div className="col-span-12 lg:col-span-6 flex flex-col justify-center">
-            <h1 className="text-4xl tracking-tight font-extrabold text-[var(--color-obsidian)] sm:text-5xl md:text-6xl mb-6">
+            <h1 className="text-3xl tracking-tight font-extrabold text-[var(--color-obsidian)] sm:text-5xl md:text-6xl mb-6">
               <span className="block xl:inline">PRECISIÓN EN</span>{' '}
               <span className="block text-[var(--color-primary)] xl:inline">MOVIMIENTO</span>
             </h1>

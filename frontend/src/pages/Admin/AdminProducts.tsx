@@ -6,6 +6,7 @@ import * as z from 'zod';
 import Button from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import { Trash2, Edit, Plus } from 'lucide-react';
 
 const productSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -256,8 +257,12 @@ const AdminProducts: React.FC = () => {
                     </button>
                   </td>
                   <td className="py-4 px-6 text-right space-x-3">
-                    <button onClick={() => handleOpenModal(p)} className="text-[var(--color-primary)] text-sm font-medium hover:underline">Editar</button>
-                    <button onClick={() => confirmDelete(p.id)} className="text-[var(--color-error)] text-sm font-medium hover:underline">Eliminar</button>
+                    <button onClick={() => handleOpenModal(p)} className="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors p-1" title="Editar">
+                      <Edit size={18} />
+                    </button>
+                    <button onClick={() => confirmDelete(p.id)} className="text-[var(--color-error)] hover:text-red-700 transition-colors p-1" title="Eliminar">
+                      <Trash2 size={18} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -322,7 +327,9 @@ const AdminProducts: React.FC = () => {
               <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-sm font-bold text-[var(--color-obsidian)] label-caps">Especificaciones Técnicas</h3>
-                  <Button type="button" variant="secondary" onClick={() => append({ label: '', value: '' })} className="py-1 px-3 text-xs">Añadir Campo</Button>
+                  <Button type="button" variant="secondary" onClick={() => append({ label: '', value: '' })} className="py-1 px-3 text-xs flex items-center">
+                    <Plus size={14} className="mr-1" /> Añadir Campo
+                  </Button>
                 </div>
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 mb-2 items-start">
@@ -342,7 +349,9 @@ const AdminProducts: React.FC = () => {
                       />
                       {errors.specifications?.[index]?.value && <p className="text-xs text-red-500 mt-1">{errors.specifications[index].value?.message}</p>}
                     </div>
-                    <button type="button" onClick={() => remove(index)} className="text-red-500 font-bold px-2 py-1 hover:bg-red-50 rounded">X</button>
+                    <button type="button" onClick={() => remove(index)} className="text-[var(--color-error)] hover:text-red-700 transition-colors p-1" title="Eliminar especificación">
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 ))}
               </div>

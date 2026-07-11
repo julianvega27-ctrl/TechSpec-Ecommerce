@@ -30,8 +30,8 @@ const PasswordRecovery: React.FC = () => {
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--color-surface)]">
       <div className="max-w-md w-full space-y-8 bg-white p-10 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)]">
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-[var(--color-obsidian)]">
-            RECUPERAR ACCESO
+          <h2 className="text-center text-2xl md:text-3xl font-extrabold text-[var(--color-obsidian)]">
+            RECUPERAR CONTRASEÑA
           </h2>
           <p className="mt-2 text-center text-sm text-[var(--color-obsidian-light)]">
             Se enviarán instrucciones a su correo electrónico

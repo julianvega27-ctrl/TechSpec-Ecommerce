@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard from '../components/ui/ProductCard';
 import Button from '../components/ui/Button';
+import { Search, ChevronDown } from 'lucide-react';
 
 const Catalog: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -60,13 +61,13 @@ const Catalog: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">CATÁLOGO DE HARDWARE</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">CATÁLOGO DE HARDWARE</h1>
         <p className="text-[var(--color-obsidian-light)] mt-2">Equipamiento técnico de precisión.</p>
       </div>
 
-      <div className="grid-container">
+      <div className="grid grid-cols-12 gap-8">
         {/* Sidebar Filters */}
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 hidden md:block">
+        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
           <div className="mb-8 border-b border-[var(--color-outline-subtle)] pb-6">
             <h3 className="label-caps mb-4">Categorías</h3>
             <ul className="space-y-3">
@@ -96,15 +97,18 @@ const Catalog: React.FC = () => {
           </div>
           <div className="mb-8">
             <h3 className="label-caps mb-4">Precio</h3>
-            <select
-              className="w-full border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none"
-              value={sortOption}
-              onChange={(e) => { setSortOption(e.target.value); setPage(1); }}
-            >
-              <option value="">Destacados</option>
-              <option value="Menor a Mayor">Menor a Mayor</option>
-              <option value="Mayor a Menor">Mayor a Menor</option>
-            </select>
+            <div className="relative">
+              <select
+                className="w-full appearance-none border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 pr-10 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all cursor-pointer"
+                value={sortOption}
+                onChange={(e) => { setSortOption(e.target.value); setPage(1); }}
+              >
+                <option value="">Destacados</option>
+                <option value="Menor a Mayor">Menor a Mayor</option>
+                <option value="Mayor a Menor">Mayor a Menor</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-outline)] pointer-events-none" size={18} />
+            </div>
           </div>
         </aside>
 
@@ -112,16 +116,19 @@ const Catalog: React.FC = () => {
         <div className="col-span-12 md:col-span-9">
           <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-4">
             <span className="mono-data text-sm text-[var(--color-obsidian-light)]">{total} RESULTADOS</span>
-            <input
-              type="text"
-              placeholder="Buscar..."
-              className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none w-64"
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--color-outline)] pointer-events-none" size={18} />
+              <input
+                type="text"
+                placeholder="Buscar..."
+                className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] py-2 pl-10 pr-4 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none w-64 focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {loading ? (
               <div className="col-span-full text-center py-12 text-gray-500 mono-data">CARGANDO...</div>
             ) : products.length > 0 ? (

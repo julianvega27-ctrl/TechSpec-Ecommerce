@@ -52,12 +52,12 @@ const Profile: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">PERFIL DE USUARIO</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">PERFIL DE USUARIO</h1>
       </div>
 
       <div className="grid-container">
-        {/* Sidebar Menu */}
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 hidden md:block">
+        {/* Sidebar */}
+        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
           <ul className="space-y-4">
             <li>
               <span className="text-[var(--color-primary)] font-medium block">Información Personal</span>

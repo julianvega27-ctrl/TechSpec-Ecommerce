@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Edit, Trash2 } from 'lucide-react';
 import Button from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import ConfirmModal from '../../components/ui/ConfirmModal';
@@ -157,8 +158,12 @@ const AdminCategories: React.FC = () => {
                     </button>
                   </td>
                   <td className="py-4 px-6 text-right space-x-3">
-                    <button onClick={() => handleOpenModal(c)} className="text-[var(--color-primary)] text-sm font-medium hover:underline">Editar</button>
-                    <button onClick={() => confirmDelete(c.id)} className="text-[var(--color-error)] text-sm font-medium hover:underline">Eliminar</button>
+                    <button onClick={() => handleOpenModal(c)} className="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors p-1" title="Editar">
+                      <Edit size={18} />
+                    </button>
+                    <button onClick={() => confirmDelete(c.id)} className="text-[var(--color-error)] hover:text-red-700 transition-colors p-1" title="Eliminar">
+                      <Trash2 size={18} />
+                    </button>
                   </td>
                 </tr>
               ))}

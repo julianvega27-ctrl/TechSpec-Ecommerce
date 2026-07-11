@@ -12,7 +12,7 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props 
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 outline-none';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 outline-none active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none';
   const radiusStyles = 'rounded-[var(--radius-soft)]';
   
   const variants = {

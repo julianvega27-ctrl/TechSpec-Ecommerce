@@ -101,9 +101,9 @@ const ProductDetail: React.FC = () => {
         <div className="col-span-12 lg:col-span-5 flex flex-col pt-4 lg:pt-0 lg:pl-8">
           <div className="mb-6 border-b border-[var(--color-outline-subtle)] pb-6">
             <Badge variant="outline">{product.category?.name || 'UNCATEGORIZED'}</Badge>
-            <h1 className="text-4xl font-bold text-[var(--color-obsidian)] mt-4 mb-2">{product.name}</h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-[var(--color-obsidian)] mt-4 mb-2">{product.name}</h1>
             <p className="mono-data text-gray-500 mb-4">MARCA: {product.brand}</p>
-            <p className="text-3xl font-bold mono-data text-[var(--color-obsidian)]">${Number(product.price).toFixed(2)}</p>
+            <p className="text-2xl md:text-3xl font-bold mono-data text-[var(--color-obsidian)]">${Number(product.price).toFixed(2)}</p>
           </div>
 
           <div className="mb-8 text-[var(--color-obsidian-light)]">

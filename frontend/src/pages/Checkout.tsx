@@ -66,7 +66,7 @@ const Checkout: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">FINALIZAR COMPRA</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">FINALIZAR COMPRA</h1>
       </div>
 
       <form className="grid-container" onSubmit={handleCheckout}>

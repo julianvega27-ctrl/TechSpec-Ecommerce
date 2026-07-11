@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { ShoppingCart, Trash2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 
@@ -69,7 +70,7 @@ const Cart: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">CARRITO DE COMPRAS</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">CARRITO DE COMPRAS</h1>
       </div>
 
       <div className="grid-container">
@@ -87,7 +88,12 @@ const Cart: React.FC = () => {
               <tbody>
                 {cartItems.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-[var(--color-obsidian-light)] mono-data">EL CARRITO ESTÁ VACÍO</td>
+                    <td colSpan={4} className="py-12 text-center text-[var(--color-obsidian-light)]">
+                      <div className="flex flex-col items-center justify-center">
+                        <ShoppingCart size={48} className="mb-4 text-[var(--color-outline-subtle)]" />
+                        <span className="mono-data">EL CARRITO ESTÁ VACÍO</span>
+                      </div>
+                    </td>
                   </tr>
                 ) : (
                   cartItems.map((item, index) => (
@@ -103,7 +109,9 @@ const Cart: React.FC = () => {
                         <div>
                           <p className="font-medium text-[var(--color-obsidian)]">{item.product.name}</p>
                           <p className="mono-data text-xs text-[var(--color-outline)]">SKU: {item.product.id.slice(0, 8)}</p>
-                          <button onClick={() => removeItem(item.id)} className="text-red-500 text-xs hover:underline mt-1">Eliminar</button>
+                          <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 transition-colors mt-2 flex items-center gap-1 text-xs" title="Eliminar del carrito">
+                            <Trash2 size={14} /> Eliminar
+                          </button>
                         </div>
                       </td>
                       <td className="py-4 px-4 text-center">

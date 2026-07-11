@@ -46,7 +46,7 @@ const Login: React.FC = () => {
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--color-surface)]">
       <div className="max-w-md w-full space-y-8 bg-white p-10 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)]">
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-[var(--color-obsidian)]">
+          <h2 className="text-center text-2xl md:text-3xl font-extrabold text-[var(--color-obsidian)]">
             INICIAR SESIÓN
           </h2>
           <p className="mt-2 text-center text-sm text-[var(--color-obsidian-light)]">
@@ -74,12 +74,12 @@ const Login: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <input id="rememberMe" type="checkbox" className="h-4 w-4 accent-[var(--color-primary)] rounded-[var(--radius-badge)] border-[var(--color-outline-subtle)]" {...register('rememberMe')} />
               <label htmlFor="rememberMe" className="ml-2 block text-sm text-[var(--color-obsidian-light)]">
                 Mantener sesión
               </label>
-            </div>
+            </div> */}
 
             <div className="text-sm">
               <Link to="/forgot-password" className="font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]">

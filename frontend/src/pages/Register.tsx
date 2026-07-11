@@ -46,8 +46,8 @@ const Register: React.FC = () => {
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--color-surface)]">
       <div className="max-w-md w-full space-y-8 bg-white p-10 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)]">
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-[var(--color-obsidian)]">
-            CREAR CREDENCIAL
+          <h2 className="text-center text-2xl md:text-3xl font-extrabold text-[var(--color-obsidian)]">
+            CREAR CUENTA
           </h2>
           <p className="mt-2 text-center text-sm text-[var(--color-obsidian-light)]">
             O <Link to="/login" className="font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]">acceda a su cuenta existente</Link>

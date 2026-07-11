@@ -32,7 +32,7 @@ const Home: React.FC = () => {
         <div className="grid-container">
           {featuredProducts.length > 0 ? (
             featuredProducts.map(product => (
-              <div key={product.id} className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3">
+              <div key={product.id} className="col-span-6 sm:col-span-6 md:col-span-4 lg:col-span-3">
                 <ProductCard {...product} category={product.category?.name || 'UNCATEGORIZED'} />
               </div>
             ))
@@ -46,7 +46,7 @@ const Home: React.FC = () => {
         <div className="page-wrapper">
           <div className="grid-container">
             <div className="col-span-12 md:col-span-8 lg:col-span-6">
-              <h2 className="text-4xl font-bold mb-6">INGENIERÍA SIN COMPROMISOS</h2>
+              <h2 className="text-2xl md:text-4xl font-bold mb-6">INGENIERÍA SIN COMPROMISOS</h2>
               <p className="text-lg text-gray-300 mb-8">
                 Cada componente ha sido diseñado con especificaciones estrictas para asegurar durabilidad, precisión y rendimiento. No hacemos concesiones en calidad.
               </p>

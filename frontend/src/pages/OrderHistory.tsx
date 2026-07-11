@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Badge } from '../components/ui/Indicators';
-import { useAuth } from '../context/AuthContext';const ORDER_STATUS_MAP: Record<string, string> = {
+import { useAuth } from '../context/AuthContext';
+import { Package } from 'lucide-react';
+
+const ORDER_STATUS_MAP: Record<string, string> = {
   'PENDING': 'PENDIENTE',
   'PROCESSING': 'PROCESANDO',
   'SHIPPED': 'ENVIADO',
@@ -66,11 +69,11 @@ const OrderHistory: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-obsidian)]">HISTORIAL DE ÓRDENES</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">HISTORIAL DE ÓRDENES</h1>
       </div>
 
       <div className="grid-container">
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 hidden md:block">
+        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
           <ul className="space-y-4">
             <li>
               <Link to="/profile" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Información Personal</Link>
@@ -121,7 +124,12 @@ const OrderHistory: React.FC = () => {
               <tbody>
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-[var(--color-obsidian-light)] mono-data">NO TIENES ÓRDENES AÚN</td>
+                    <td colSpan={4} className="py-12 text-center text-[var(--color-obsidian-light)]">
+                      <div className="flex flex-col items-center justify-center">
+                        <Package size={48} className="mb-4 text-[var(--color-outline-subtle)]" />
+                        <span className="mono-data">NO TIENES ÓRDENES AÚN</span>
+                      </div>
+                    </td>
                   </tr>
                 ) : (
                   orders.map((order, index) => (
