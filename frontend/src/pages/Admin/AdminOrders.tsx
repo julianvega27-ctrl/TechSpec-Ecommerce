@@ -77,6 +77,8 @@ const AdminOrders: React.FC = () => {
                   <tr
                     key={o.id}
                     onClick={() => setSelectedOrder(o)}
+                    tabIndex={0}
+                    onKeyDown={event => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); setSelectedOrder(o); } }}
                     className={`border-b border-[var(--color-outline-subtle)] last:border-b-0 cursor-pointer hover:bg-gray-50 ${selectedOrder?.id === o.id ? 'bg-[var(--color-surface-container-high)]' : ''}`}
                   >
                     <td className="py-4 px-6">
@@ -89,7 +91,7 @@ const AdminOrders: React.FC = () => {
                     </td>
                     <td className="py-4 px-6 mono-data">${Number(o.totalAmount).toFixed(2)}</td>
                     <td className="py-4 px-6">
-                      <select
+                      <select aria-label={`Estado del pedido ${o.id}`}
                         value={o.status}
                         onChange={(e) => updateStatus(o.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}

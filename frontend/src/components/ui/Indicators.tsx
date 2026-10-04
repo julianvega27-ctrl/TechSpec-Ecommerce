@@ -2,19 +2,21 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'error';
+  variant?: 'primary' | 'secondary' | 'outline' | 'error' | 'success' | 'warning';
 }
 
 export const Badge: React.FC<BadgeProps> = ({ children, variant = 'primary' }) => {
   const variants = {
-    primary: 'bg-[var(--color-primary)] text-white',
-    secondary: 'bg-[var(--color-obsidian)] text-white',
-    outline: 'bg-transparent text-[var(--color-obsidian)] border border-[var(--color-obsidian)]',
-    error: 'bg-[var(--color-error)] text-white'
+    primary: 'bg-accent-subtle text-accent',
+    secondary: 'bg-surface-container text-primary',
+    outline: 'bg-card text-primary border border-border',
+    error: 'bg-error-subtle text-error',
+    success: 'bg-success-subtle text-success',
+    warning: 'bg-warning-subtle text-warning'
   };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-[var(--radius-badge)] label-caps ${variants[variant]}`}>
+    <span className={`inline-flex items-center px-2 py-1 rounded-badge text-xs font-medium leading-4 ${variants[variant]}`}>
       {children}
     </span>
   );
@@ -26,10 +28,10 @@ interface ProgressBarProps {
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
   return (
-    <div className="w-full bg-[var(--color-surface-container-high)] h-[2px]">
+    <div role="progressbar" aria-label="Progreso" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Number.isFinite(progress) ? Math.min(Math.max(progress, 0), 100) : 0} className="w-full bg-surface-container-high h-1 rounded-full overflow-hidden">
       <div
-        className="bg-[var(--color-primary)] h-[2px] transition-all duration-300"
-        style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
+        className="bg-accent h-full origin-left transition-transform duration-[var(--motion-normal)]"
+        style={{ transform: `scaleX(${Number.isFinite(progress) ? Math.min(Math.max(progress, 0), 100) / 100 : 0})` }}
       />
     </div>
   );
@@ -37,8 +39,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
 
 export const FullScreenLoader: React.FC = () => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[var(--color-surface)] z-50">
-      <div className="w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+    <div role="status" aria-live="polite" className="fixed inset-0 flex flex-col gap-4 items-center justify-center bg-background z-50">
+      <div aria-hidden="true" className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full ds-spinner"></div>
+      <span className="text-sm text-text-secondary">Cargando...</span>
     </div>
   );
 };

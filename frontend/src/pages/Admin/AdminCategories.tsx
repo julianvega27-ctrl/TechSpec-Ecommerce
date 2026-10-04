@@ -7,6 +7,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import Button from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import { useDialogFocus } from '../../components/ui/useDialogFocus';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -67,6 +68,8 @@ const AdminCategories: React.FC = () => {
     reset();
     setEditingCategory(null);
   };
+
+  const dialogRef = useDialogFocus(isModalOpen, handleCloseModal);
 
   const onSubmit = async (data: CategoryFormValues) => {
     try {
@@ -179,9 +182,9 @@ const AdminCategories: React.FC = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[var(--radius-soft)] p-8 max-w-lg w-full">
-            <h2 className="text-2xl font-bold text-[var(--color-obsidian)] mb-6">
+        <div className="fixed inset-0 bg-primary/40 flex items-center justify-center z-50 p-4">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="category-editor-title" className="ds-card shadow-dialog p-5 sm:p-8 max-w-lg w-full max-h-[calc(100dvh-2rem)] overflow-y-auto">
+            <h2 id="category-editor-title" className="text-2xl font-bold text-[var(--color-obsidian)] mb-6">
               {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
             </h2>
 
@@ -190,7 +193,7 @@ const AdminCategories: React.FC = () => {
 
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Descripción</label>
-                <textarea
+                <textarea aria-label="Descripción de la categoría"
                   {...register('description')}
                   className="w-full h-24 rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-obsidian)] focus:ring-1 focus:ring-[var(--color-primary)]"
                 ></textarea>
@@ -202,9 +205,9 @@ const AdminCategories: React.FC = () => {
                 <label htmlFor="isActive" className="text-sm font-medium text-[var(--color-obsidian)]">Categoría Activa</label>
               </div>
 
-              <div className="flex justify-end space-x-4 pt-6 border-t border-[var(--color-outline-subtle)]">
+              <div className="flex flex-wrap justify-end gap-3 pt-6 border-t border-[var(--color-outline-subtle)]">
                 <Button type="button" variant="secondary" onClick={handleCloseModal} disabled={saving}>Cancelar</Button>
-                <Button type="submit" variant="primary" disabled={saving}>
+                <Button type="submit" variant="primary" loading={saving}>
                   {saving ? 'Guardando...' : 'Guardar'}
                 </Button>
               </div>

@@ -1,9 +1,11 @@
-import React, { type InputHTMLAttributes } from 'react';
+import React, { useId, type InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   fullWidth?: boolean;
+  hint?: string;
+  wrapperClassName?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -12,25 +14,34 @@ const Input: React.FC<InputProps> = ({
   fullWidth = true,
   className = '',
   id,
+  hint,
+  wrapperClassName = 'mb-4',
+  'aria-describedby': describedBy,
+  'aria-invalid': invalid,
   ...props
 }) => {
-  const generatedId = id || `input-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  const uniqueId = useId();
+  const generatedId = id || `input-${uniqueId}`;
+  const errorId = `${generatedId}-error`;
+  const hintId = `${generatedId}-hint`;
+  const descriptionIds = [describedBy, hint && hintId, error && errorId].filter(Boolean).join(' ') || undefined;
   const widthStyles = fullWidth ? 'w-full' : '';
 
   return (
-    <div className={`flex flex-col mb-4 ${widthStyles}`}>
-      <label htmlFor={generatedId} className="label-caps mb-2 text-[var(--color-obsidian-light)]">
+    <div className={`flex flex-col gap-2 ${widthStyles} ${wrapperClassName}`}>
+      <label htmlFor={generatedId} className="ds-label">
         {label}
       </label>
       <input
         id={generatedId}
-        className={`px-4 py-2 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] border-b-2 rounded-[var(--radius-soft)] transition-colors duration-200 outline-none
-          ${error ? 'border-[var(--color-error)] focus:border-[var(--color-error)]' : 'border-transparent focus:border-[var(--color-primary)]'} 
-          ${className}`}
+        className={`ds-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
         {...props}
+        aria-invalid={error ? true : invalid}
+        aria-describedby={descriptionIds}
       />
+      {hint && <span id={hintId} className="text-sm text-text-secondary">{hint}</span>}
       {error && (
-        <span className="text-[var(--color-error)] text-sm mt-1">{error}</span>
+        <span id={errorId} className="text-error text-sm" role="alert">{error}</span>
       )}
     </div>
   );

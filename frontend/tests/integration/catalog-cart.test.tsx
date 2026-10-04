@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
@@ -75,10 +75,10 @@ describe('Catalog & Cart Integration', () => {
 
       // Wait for products and categories to load
       expect(await screen.findByText('Gaming Laptop')).toBeInTheDocument();
-      expect(await screen.findByText('Laptops')).toBeInTheDocument();
+      expect(await screen.findByRole('radio', { name: 'Laptops' })).toBeInTheDocument();
 
       // Find "Agregar al carrito" button
-      const addToCartBtn = await screen.findByRole('button', { name: /Agregar/i });
+      const addToCartBtn = await screen.findByRole('button', { name: 'Añadir Gaming Laptop al carrito' });
       fireEvent.click(addToCartBtn);
 
       await waitFor(() => {
@@ -97,7 +97,7 @@ describe('Catalog & Cart Integration', () => {
         http.get('http://localhost:3000/api/cart', () => {
           return HttpResponse.json({ data: cart });
         }),
-        http.put('http://localhost:3000/api/cart/:id', async ({ params, request }) => {
+        http.put('http://localhost:3000/api/cart/:id', async ({ request }) => {
           const body = await request.json() as { quantity: number };
           cart[0].quantity = body.quantity;
           return HttpResponse.json({ success: true, data: cart[0] });
@@ -111,14 +111,14 @@ describe('Catalog & Cart Integration', () => {
       renderCartWithProviders();
 
       expect(await screen.findByText('Gaming Laptop')).toBeInTheDocument();
-      expect(screen.getByText(/\$1,500.00/)).toBeInTheDocument();
+      expect(screen.getAllByText(/\$1,500.00/).length).toBeGreaterThan(0);
 
       // Update quantity
-      const incrementBtn = screen.getByRole('button', { name: '+' });
-      fireEvent.click(incrementBtn);
+      fireEvent.change(screen.getByRole('spinbutton', { name: 'Cantidad de Gaming Laptop' }), { target: { value: '2' } });
 
       await waitFor(() => {
         expect(cart[0].quantity).toBe(2);
+        expect(screen.getByRole('spinbutton', { name: 'Cantidad de Gaming Laptop' })).toBeEnabled();
       });
 
       // Remove item

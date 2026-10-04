@@ -6,6 +6,9 @@ import * as z from 'zod';
 import Button from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import { useDialogFocus } from '../../components/ui/useDialogFocus';
+import { formatPrice } from '../../utils/storefront';
+import { ProductImage } from '../../components/ui/Interior';
 import { Trash2, Edit, Plus } from 'lucide-react';
 
 const productSchema = z.object({
@@ -127,6 +130,8 @@ const AdminProducts: React.FC = () => {
     setEditingProduct(null);
   };
 
+  const dialogRef = useDialogFocus(isModalOpen, handleCloseModal);
+
   const onSubmit = async (data: ProductFormValues) => {
     if (!editingProduct && (!data.images || data.images.length === 0)) {
       alert('Al menos una imagen es requerida para nuevos productos');
@@ -242,11 +247,11 @@ const AdminProducts: React.FC = () => {
               {products.map(p => (
                 <tr key={p.id} className="border-b border-[var(--color-outline-subtle)] last:border-b-0 hover:bg-gray-50">
                   <td className="py-4 px-6">
-                    <img src={p.imageUrl} alt={p.name} className="w-12 h-12 object-cover rounded" />
+                    <ProductImage src={p.imageUrl} name={p.name} className="w-16 h-16 rounded-control" />
                   </td>
                   <td className="py-4 px-6 text-[var(--color-obsidian)] font-medium">{p.name}</td>
                   <td className="py-4 px-6 text-[var(--color-obsidian-light)]">{p.brand}</td>
-                  <td className="py-4 px-6 mono-data">${Number(p.price).toFixed(2)}</td>
+                  <td className="py-4 px-6 mono-data">{formatPrice(p.price)}</td>
                   <td className="py-4 px-6 mono-data">{p.stock}</td>
                   <td className="py-4 px-6">
                     <button
@@ -278,9 +283,9 @@ const AdminProducts: React.FC = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-[var(--radius-soft)] p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-[var(--color-obsidian)] mb-6">
+        <div className="fixed inset-0 bg-primary/40 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="product-editor-title" className="ds-card shadow-dialog p-5 sm:p-8 max-w-2xl w-full max-h-[calc(100dvh-2rem)] overflow-y-auto">
+            <h2 id="product-editor-title" className="text-2xl font-bold text-[var(--color-obsidian)] mb-6">
               {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
             </h2>
 
@@ -292,7 +297,7 @@ const AdminProducts: React.FC = () => {
 
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Descripción</label>
-                <textarea
+                <textarea aria-label="Descripción del producto"
                   {...register('description')}
                   className="w-full h-24 rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-obsidian)] focus:ring-1 focus:ring-[var(--color-primary)]"
                 ></textarea>
@@ -306,7 +311,7 @@ const AdminProducts: React.FC = () => {
 
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Categoría</label>
-                <select
+                <select aria-label="Categoría del producto"
                   {...register('categoryId')}
                   className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-obsidian)] focus:ring-1 focus:ring-[var(--color-primary)]"
                 >
@@ -325,7 +330,7 @@ const AdminProducts: React.FC = () => {
 
               {/* Specifications */}
               <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex flex-wrap gap-3 justify-between items-center mb-2">
                   <h3 className="text-sm font-bold text-[var(--color-obsidian)] label-caps">Especificaciones Técnicas</h3>
                   <Button type="button" variant="secondary" onClick={() => append({ label: '', value: '' })} className="py-1 px-3 text-xs flex items-center">
                     <Plus size={14} className="mr-1" /> Añadir Campo
@@ -333,9 +338,9 @@ const AdminProducts: React.FC = () => {
                 </div>
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 mb-2 items-start">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <input
-                        {...register(`specifications.${index}.label`)}
+                        aria-label={`Etiqueta de especificación ${index + 1}`} {...register(`specifications.${index}.label`)}
                         placeholder="Ej. Memoria RAM"
                         className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] px-2 py-1 text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none"
                       />
@@ -343,7 +348,7 @@ const AdminProducts: React.FC = () => {
                     </div>
                     <div className="flex-1">
                       <input
-                        {...register(`specifications.${index}.value`)}
+                        aria-label={`Valor de especificación ${index + 1}`} {...register(`specifications.${index}.value`)}
                         placeholder="Ej. 16GB DDR5"
                         className="w-full rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] px-2 py-1 text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none"
                       />
@@ -359,7 +364,7 @@ const AdminProducts: React.FC = () => {
               <div className="space-y-1 pt-4 border-t border-[var(--color-outline-subtle)]">
                 <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">Imágenes {editingProduct && '(Opcional)'}</label>
                 <input
-                  type="file"
+                  type="file" aria-label="Imágenes del producto"
                   accept="image/*"
                   multiple
                   {...register('images')}
@@ -372,15 +377,15 @@ const AdminProducts: React.FC = () => {
                   <p className="text-xs text-gray-500 mb-2">Vista Previa:</p>
                   <div className="flex flex-wrap gap-2">
                     {previewImages.map((src, i) => (
-                      <img key={i} src={src} alt="Preview" className="h-20 w-20 object-cover border border-gray-200 rounded bg-gray-50" />
+                      <img key={i} src={src} alt={`Vista previa del producto, imagen ${i + 1}`} className="h-20 w-20 object-cover border border-gray-200 rounded bg-gray-50" />
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="flex justify-end space-x-4 pt-6 border-t border-[var(--color-outline-subtle)]">
+              <div className="flex flex-wrap justify-end gap-3 pt-6 border-t border-[var(--color-outline-subtle)]">
                 <Button type="button" variant="secondary" onClick={handleCloseModal} disabled={saving}>Cancelar</Button>
-                <Button type="submit" variant="primary" disabled={saving}>
+                <Button type="submit" variant="primary" loading={saving}>
                   {saving ? 'Guardando...' : 'Guardar'}
                 </Button>
               </div>

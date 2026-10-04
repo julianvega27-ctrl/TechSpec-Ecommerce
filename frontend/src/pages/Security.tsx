@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 const Security: React.FC = () => {
   const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
+  const loggingOut = useRef(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -15,12 +16,13 @@ const Security: React.FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !user && !loggingOut.current) {
       navigate('/login');
     }
   }, [user, isLoading, navigate]);
 
   const handleLogout = () => {
+    loggingOut.current = true;
     logout();
     navigate('/');
   };
@@ -35,8 +37,8 @@ const Security: React.FC = () => {
       setMessage('Contraseña actualizada correctamente');
       setCurrentPassword('');
       setNewPassword('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al actualizar la contraseña');
+    } catch (err) {
+      setError(axios.isAxiosError(err) ? err.response?.data?.message || 'Error al actualizar la contraseña' : 'Error al actualizar la contraseña');
     } finally {
       setIsSaving(false);
     }
@@ -47,14 +49,14 @@ const Security: React.FC = () => {
   }
 
   return (
-    <div className="page-wrapper py-8">
+    <div className="account-legacy page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">CONTRASEÑA</h1>
+        <h1 className="ds-page-title text-primary">Contraseña</h1>
       </div>
 
       <div className="grid-container">
         {/* Sidebar Menu */}
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
+        <aside className="col-span-12 md:col-span-3 ds-card p-4 min-w-0">
           <ul className="space-y-4">
             <li>
               <Link to="/profile" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Información Personal</Link>
@@ -92,19 +94,19 @@ const Security: React.FC = () => {
         </aside>
 
         {/* Main Content */}
-        <div className="col-span-12 md:col-span-9 lg:col-span-6">
-          <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-8">
+        <div className="col-span-12 md:col-span-9 min-w-0 lg:col-span-6">
+          <div className="ds-card p-5 sm:p-6">
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">CAMBIAR CONTRASEÑA</h3>
-            {message && <div className="mb-4 p-3 bg-green-50 text-green-700 rounded text-sm font-medium">{message}</div>}
-            {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm font-medium">{error}</div>}
+            {message && <div role="status" className="mb-4 p-3 bg-green-50 text-green-700 rounded text-sm font-medium">{message}</div>}
+            {error && <div role="alert" className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm font-medium">{error}</div>}
 
             <form className="space-y-6" onSubmit={handleSave}>
-              <Input label="CONTRASEÑA ACTUAL" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
-              <Input label="NUEVA CONTRASEÑA" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+              <Input label="Contraseña actual" autoComplete="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+              <Input label="Nueva contraseña" autoComplete="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
 
               <div className="pt-4 border-t border-[var(--color-outline-subtle)]">
-                <Button type="submit" variant="primary" disabled={isSaving}>
-                  {isSaving ? 'GUARDANDO...' : 'ACTUALIZAR CONTRASEÑA'}
+                <Button type="submit" variant="primary" loading={isSaving}>
+                  {isSaving ? 'Guardando…' : 'Actualizar contraseña'}
                 </Button>
               </div>
             </form>

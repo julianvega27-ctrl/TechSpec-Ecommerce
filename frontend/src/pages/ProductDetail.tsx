@@ -1,156 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
-import TechSpecsTable from '../components/ui/TechSpecsTable';
+import Input from '../components/ui/Input';
+import TechSpecsTable, { type TechSpec } from '../components/ui/TechSpecsTable';
 import { Badge } from '../components/ui/Indicators';
+import CatalogState from '../components/ui/CatalogState';
+import { Breadcrumb, Notice, ProductImage } from '../components/ui/Interior';
+import { actionLinkClass, formatPrice } from '../utils/storefront';
 
-// mockSpecs removed, we will use product specifications directly
+interface Product {
+  id: string; name: string; brand?: string; price?: number | string | null;
+  imageUrl?: string; description?: string; stock?: number;
+  category?: { name: string }; images?: { url: string }[]; specifications?: TechSpec[];
+}
 
-const ProductDetail: React.FC = () => {
+export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [purchaseError, setPurchaseError] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchProduct = async () => {
-      if (!id) return;
+      setLoading(true);
+      setProduct(null);
+      if (!id) { setLoading(false); return; }
       try {
         const response = await axios.get(`/products/${id}`);
         const payload = response.data.data || response.data;
-        setProduct(payload);
-        if (payload.imageUrl) {
-          setSelectedImage(payload.imageUrl);
-        }
+        if (!cancelled) { setProduct(payload); setSelectedImage(payload.imageUrl || payload.images?.[0]?.url || null); }
       } catch (error) {
         console.error('Error fetching product:', error);
-      } finally {
-        setLoading(false);
-      }
+      } finally { if (!cancelled) setLoading(false); }
     };
-    fetchProduct();
+    void fetchProduct();
+    return () => { cancelled = true; };
   }, [id]);
 
-  if (loading) return <div className="page-wrapper py-24 text-center mono-data text-[var(--color-obsidian)]">CARGANDO...</div>;
-  if (!product) return <div className="page-wrapper py-24 text-center mono-data text-red-500">PRODUCTO NO ENCONTRADO</div>;
-
   const handleAddToCart = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    
+    if (!user) { navigate('/login'); return; }
+    if (!product || addingToCart) return;
     setAddingToCart(true);
+    setPurchaseError('');
     try {
       await axios.post('/cart', { productId: product.id, quantity });
       window.dispatchEvent(new Event('cartUpdated'));
       navigate('/cart');
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Hubo un error al agregar al carrito.');
-    } finally {
-      setAddingToCart(false);
-    }
+      setPurchaseError('Hubo un error al agregar al carrito. Inténtalo de nuevo.');
+    } finally { setAddingToCart(false); }
   };
 
-  return (
-    <div className="page-wrapper py-8">
-      <div className="grid-container">
-        
-        {/* Image Gallery (Spans 7 columns on large screens) */}
-        <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
-          <div className="w-full aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] flex items-center justify-center p-8 relative overflow-hidden">
-            <span className="label-caps text-[var(--color-outline)] absolute top-4 left-4 z-10">VISTA PRINCIPAL</span>
-            {selectedImage ? (
-              <img src={selectedImage} alt={product.name} className="object-contain w-full h-full" />
-            ) : (
-              <div className="w-2/3 h-2/3 bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center">
-                <span className="mono-data text-gray-500">NO IMAGE</span>
-              </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-4 gap-4">
-            {(() => {
-              const allImages = [product.imageUrl];
-              if (product.images && Array.isArray(product.images)) {
-                product.images.forEach((img: any) => allImages.push(img.url));
-              }
-              const validImages = allImages.filter(Boolean);
+  if (loading) return <div className="page-wrapper py-8"><Notice variant="loading">Cargando producto…</Notice></div>;
+  if (!product) return <div className="page-wrapper py-8"><CatalogState variant="error" title="No pudimos mostrar este producto" description="El producto no está disponible o no se pudo cargar." action={<Link className={actionLinkClass} to="/catalog">Volver al catálogo</Link>} /></div>;
+  const images = [product.imageUrl, ...(product.images || []).map(image => image.url)].filter((src): src is string => !!src);
+  const knownStock = typeof product.stock === 'number' && Number.isFinite(product.stock);
 
-              return validImages.map((src, idx) => (
-                <div 
-                  key={idx} 
-                  onClick={() => setSelectedImage(src)}
-                  className={`aspect-square bg-[var(--color-surface-container)] rounded-[var(--radius-soft)] border cursor-pointer hover:border-[var(--color-primary)] transition-colors ${selectedImage === src ? 'border-[var(--color-primary)]' : 'border-[var(--color-outline-subtle)]'} flex items-center justify-center p-2 overflow-hidden`}
-                >
-                   <img src={src} alt={`Thumb ${idx}`} className="w-full h-full object-cover rounded" />
-                </div>
-              ));
-            })()}
-          </div>
+  return <div className="product-detail-page page-wrapper py-8 lg:py-10">
+    <Breadcrumb current={product.name} parent={{ label: 'Catálogo', to: '/catalog' }} />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+      <section aria-label="Imágenes del producto" className="min-w-0 space-y-4">
+        <ProductImage src={selectedImage} name={product.name} className="ds-card aspect-[4/3] p-6 sm:p-8" />
+        {images.length > 1 && <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+          {images.map((src, index) => <button key={`${src}-${index}`} type="button" aria-label={`Ver imagen ${index + 1} de ${product.name}`} aria-pressed={selectedImage === src} onClick={() => setSelectedImage(src)} className={`ds-card min-h-11 aspect-square p-2 hover:border-accent transition-colors duration-200 ${selectedImage === src ? 'border-accent ring-1 ring-accent' : ''}`}>
+            <ProductImage src={src} name="" className="w-full h-full rounded-control" />
+          </button>)}
+        </div>}
+      </section>
+      <section aria-label="Información del producto" className="min-w-0">
+        <div className="flex flex-wrap items-center gap-3 mb-3">
+          {product.category?.name && <Badge variant="outline">{product.category.name}</Badge>}
+          {product.brand && <span className="text-sm font-medium text-text-secondary">{product.brand}</span>}
         </div>
-
-        {/* Product Info (Spans 5 columns) */}
-        <div className="col-span-12 lg:col-span-5 flex flex-col pt-4 lg:pt-0 lg:pl-8">
-          <div className="mb-6 border-b border-[var(--color-outline-subtle)] pb-6">
-            <Badge variant="outline">{product.category?.name || 'UNCATEGORIZED'}</Badge>
-            <h1 className="text-2xl md:text-4xl font-bold text-[var(--color-obsidian)] mt-4 mb-2">{product.name}</h1>
-            <p className="mono-data text-gray-500 mb-4">MARCA: {product.brand}</p>
-            <p className="text-2xl md:text-3xl font-bold mono-data text-[var(--color-obsidian)]">${Number(product.price).toFixed(2)}</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-primary leading-tight break-words tracking-tight">{product.name}</h1>
+        <p className="text-3xl font-semibold text-primary tabular-nums mt-5 mb-5">{formatPrice(product.price)}</p>
+        {product.description && <p className="text-text-secondary leading-relaxed mb-6 break-words">{product.description}</p>}
+        <div className="ds-card p-5 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+            <Input id="product-quantity" label="Cantidad" type="number" value={quantity} onChange={event => setQuantity(Math.max(1, parseInt(event.target.value) || 1))} min={1} max={product.stock} disabled={addingToCart} fullWidth={false} wrapperClassName="sm:w-24 shrink-0" className="text-center tabular-nums" />
+            <Button type="button" fullWidth size="lg" loading={addingToCart} disabled={knownStock && product.stock! <= 0} onClick={() => { void handleAddToCart(); }}>
+              {!addingToCart && <ShoppingCart size={18} aria-hidden="true" />}{addingToCart ? 'Agregando…' : knownStock && product.stock! <= 0 ? 'Sin stock' : 'Añadir al carrito'}
+            </Button>
           </div>
-
-          <div className="mb-8 text-[var(--color-obsidian-light)]">
-            <p>{product.description}</p>
-          </div>
-
-          <div className="mb-8 flex flex-col gap-4">
-            <div className="flex gap-4 items-end">
-              <div className="w-1/3">
-                <label className="label-caps block mb-2">CANTIDAD</label>
-                <input 
-                  type="number" 
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  min={1} 
-                  max={product.stock}
-                  className="w-full border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 text-center mono-data outline-none focus:border-[var(--color-primary)]" 
-                />
-              </div>
-              <Button 
-                fullWidth 
-                variant="primary" 
-                className="h-[42px]"
-                onClick={handleAddToCart}
-                disabled={addingToCart || product.stock <= 0}
-              >
-                {addingToCart ? 'AGREGANDO...' : 'AGREGAR AL CARRITO'}
-              </Button>
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="mono-data text-sm">STOCK DISPONIBLE ({product.stock} unidades)</span>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="label-caps mb-4">ESPECIFICACIONES TÉCNICAS</h3>
-            {product.specifications && product.specifications.length > 0 ? (
-              <TechSpecsTable specs={product.specifications} />
-            ) : (
-              <p className="text-[var(--color-obsidian-light)] text-sm border-t border-[var(--color-outline-subtle)] pt-4">No hay especificaciones disponibles para este producto.</p>
-            )}
-          </div>
+          {knownStock && <p className={`text-sm ${product.stock! > 0 ? 'text-success' : 'text-text-secondary'}`}>{product.stock! > 0 ? `Stock disponible: ${product.stock} unidades` : 'Sin stock disponible'}</p>}
+          {purchaseError && <Notice>{purchaseError}</Notice>}
         </div>
-      </div>
+      </section>
     </div>
-  );
-};
-
-export default ProductDetail;
+    <section aria-labelledby="product-specifications" className="mt-8 lg:mt-12 max-w-4xl">
+      <h2 id="product-specifications" className="ds-section-title text-primary mb-4">Especificaciones técnicas</h2>
+      {product.specifications?.length ? <TechSpecsTable specs={product.specifications} /> : <div className="ds-card p-6 text-sm text-text-secondary">No hay especificaciones disponibles para este producto.</div>}
+    </section>
+  </div>;
+}

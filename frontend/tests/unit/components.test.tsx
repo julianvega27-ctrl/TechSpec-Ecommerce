@@ -6,10 +6,12 @@ import * as AuthContext from '../../src/context/AuthContext';
 import axios from 'axios';
 
 vi.mock('axios');
+const authMock = (user: ReturnType<typeof AuthContext.useAuth>['user']) => ({ user, token: user ? 'test-token' : null, isLoading: false, login: vi.fn(), logout: vi.fn() });
 
 describe('Navbar Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(axios.get).mockResolvedValue({ data: [] });
   });
 
   const renderNavbar = () => {
@@ -20,32 +22,32 @@ describe('Navbar Component', () => {
     );
   };
 
-  it('renders logo and catalog link', () => {
-    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ user: null } as any);
+  it('renders logo and catalog link', async () => {
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue(authMock(null));
     renderNavbar();
 
     expect(screen.getByText(/TECH/i)).toBeInTheDocument();
     expect(screen.getByText(/SPEC/i)).toBeInTheDocument();
-    expect(screen.getByText('Catálogo')).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Catálogo' })).toBeInTheDocument();
   });
 
-  it('shows "Ingresar" when user is not logged in', () => {
-    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ user: null } as any);
+  it('shows "Ingresar" when user is not logged in', async () => {
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue(authMock(null));
     renderNavbar();
 
-    expect(screen.getByText('Ingresar')).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Ingresar' })).toBeInTheDocument();
   });
 
-  it('shows "Mi perfil" when user is logged in', () => {
-    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ user: { id: '1', name: 'User' } } as any);
+  it('shows "Mi perfil" when user is logged in', async () => {
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue(authMock({ id: '1', name: 'User', email: 'test@example.com', role: 'CLIENT' }));
     vi.mocked(axios.get).mockResolvedValue({ data: [] });
     renderNavbar();
 
-    expect(screen.getByText('Mi perfil')).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Mi perfil' })).toBeInTheDocument();
   });
 
   it('fetches and displays cart item count for logged-in users', async () => {
-    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ user: { id: '1', name: 'User' } } as any);
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue(authMock({ id: '1', name: 'User', email: 'test@example.com', role: 'CLIENT' }));
     vi.mocked(axios.get).mockResolvedValue({
       data: [{ quantity: 2 }, { quantity: 3 }]
     });
@@ -60,11 +62,11 @@ describe('Navbar Component', () => {
   });
 
   it('displays 0 items in cart for non-logged-in users without fetching', () => {
-    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ user: null } as any);
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue(authMock(null));
     
     renderNavbar();
 
     expect(screen.getByText('0')).toBeInTheDocument();
-    expect(axios.get).not.toHaveBeenCalled();
+    expect(axios.get).not.toHaveBeenCalledWith('/cart');
   });
 });

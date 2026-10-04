@@ -1,153 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { UserRound, Package, LockKeyhole, LogOut, Pencil, Settings } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import { Breadcrumb, PageHeading, Notice } from '../components/ui/Interior';
 
-const Profile: React.FC = () => {
+export default function Profile() {
   const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
+  const loggingOut = useRef(false);
   const [name, setName] = useState('');
+  const [savedName, setSavedName] = useState<{ userId: string; value: string } | null>(null);
+  const displayName = savedName?.userId === user?.id ? savedName?.value || '' : user?.name || '';
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
-
   const [isEditing, setIsEditing] = useState(false);
-
   useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/login');
-    } else if (user) {
-      setName(user.name);
-    }
+    if (!isLoading && !user && !loggingOut.current) navigate('/login');
   }, [user, isLoading, navigate]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogout = () => { loggingOut.current = true; logout(); navigate('/'); };
+  const handleSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!user) return;
     try {
-      setIsSaving(true);
-      setMessage('');
+      setIsSaving(true); setMessage('');
       await axios.put('/users/profile', { name });
-      setMessage('Perfil actualizado correctamente');
-      setIsEditing(false);
-      // Actualizamos el nombre localmente en el contexto si fuera necesario, 
-      // pero por ahora el context lo maneja o requiere recargar,
-      // asumiendo que user.name se actualizará o se mostrará `name`
+      setSavedName({ userId: user.id, value: name });
+      setMessage('Perfil actualizado correctamente'); setIsEditing(false);
     } catch (error) {
+      console.error('Error updating profile:', error);
       setMessage('Error al actualizar el perfil');
-    } finally {
-      setIsSaving(false);
-    }
+    } finally { setIsSaving(false); }
   };
-
-  if (isLoading || !user) {
-    return <div className="page-wrapper py-8">Cargando...</div>;
-  }
-
-  return (
-    <div className="page-wrapper py-8">
-      <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">PERFIL DE USUARIO</h1>
-      </div>
-
-      <div className="grid-container">
-        {/* Sidebar */}
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
-          <ul className="space-y-4">
-            <li>
-              <span className="text-[var(--color-primary)] font-medium block">Información Personal</span>
-            </li>
-            {user?.role === 'ADMIN' && (
-              <>
-                <li className="pt-2 pb-1 border-t border-[var(--color-outline-subtle)]">
-                  <span className="text-xs font-bold text-[var(--color-obsidian)] label-caps">ADMINISTRACIÓN</span>
-                </li>
-                <li>
-                  <Link to="/admin/products" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Productos</Link>
-                </li>
-                <li>
-                  <Link to="/admin/categories" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Categorías</Link>
-                </li>
-                <li>
-                  <Link to="/admin/users" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Usuarios</Link>
-                </li>
-                <li>
-                  <Link to="/admin/orders" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Gestión de Pedidos</Link>
-                </li>
-                <li className="pt-2 border-t border-[var(--color-outline-subtle)]"></li>
-              </>
-            )}
-            <li>
-              <Link to="/orders" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Historial de Órdenes</Link>
-            </li>
-            <li>
-              <Link to="/security" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Contraseña</Link>
-            </li>
-            <li>
-              <button onClick={handleLogout} className="text-[var(--color-error)] mt-8 block cursor-pointer bg-transparent border-none p-0 text-left w-full">Cerrar Sesión</button>
-            </li>
-          </ul>
-        </aside>
-
-        {/* Main Content */}
-        <div className="col-span-12 md:col-span-9 lg:col-span-6">
-          <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-8">
-            <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-2">
-              <h3 className="label-caps">DATOS DE CONTACTO</h3>
-              {!isEditing && (
-                <Button variant="secondary" onClick={() => setIsEditing(true)}>EDITAR</Button>
-              )}
-            </div>
-
-            {message && <div className="mb-4 p-3 bg-gray-50 text-[var(--color-primary)] rounded text-sm font-medium">{message}</div>}
-
-            {!isEditing ? (
-              <div className="space-y-6">
-                <div>
-                  <p className="label-caps text-[var(--color-obsidian-light)] mb-1">NOMBRE COMPLETO</p>
-                  <p className="text-lg font-medium text-[var(--color-obsidian)]">{user.name}</p>
-                </div>
-                <div>
-                  <p className="label-caps text-[var(--color-obsidian-light)] mb-1">CORREO ELECTRÓNICO</p>
-                  <p className="text-lg font-medium text-[var(--color-obsidian)]">{user.email}</p>
-                </div>
-                {user.role === 'ADMIN' && (
-                  <div>
-                    <p className="label-caps text-[var(--color-obsidian-light)] mb-1">ROL</p>
-                    <p className="text-lg font-medium text-[var(--color-obsidian)]">{user.role}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <form className="space-y-6" onSubmit={handleSave}>
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                  <Input label="NOMBRE COMPLETO" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <Input label="CORREO ELECTRÓNICO" type="email" value={user.email} disabled />
-                {user.role === 'ADMIN' && (
-                  <Input label="ROL" type="text" value={user.role} disabled />
-                )}
-
-                <div className="pt-4 border-t border-[var(--color-outline-subtle)] flex gap-4">
-                  <Button type="button" variant="secondary" onClick={() => { setIsEditing(false); setName(user.name); }}>
-                    CANCELAR
-                  </Button>
-                  <Button type="submit" variant="primary" disabled={isSaving}>
-                    {isSaving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
-                  </Button>
-                </div>
-              </form>
-            )}
-          </div>
+  if (isLoading || !user) return <div className="page-wrapper py-8"><Notice variant="loading">Cargando perfil…</Notice></div>;
+  const accountLink = 'flex min-h-11 items-center gap-3 rounded-control px-3 py-3 text-sm text-text-secondary hover:text-primary hover:bg-background active:bg-surface-container-high transition-colors duration-200';
+  const adminLinks = [{ to: '/admin/products', label: 'Gestión de productos' }, { to: '/admin/categories', label: 'Gestión de categorías' }, { to: '/admin/users', label: 'Gestión de usuarios' }, { to: '/admin/orders', label: 'Gestión de pedidos' }];
+  return <div className="profile-page page-wrapper py-8 lg:py-10">
+    <Breadcrumb current="Mi cuenta" />
+    <PageHeading title="Mi cuenta" description="Consulta y actualiza tus datos personales." />
+    <div className="grid grid-cols-1 md:grid-cols-[224px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+      <aside className="ds-card p-4 min-w-0">
+        <nav aria-label="Mi cuenta" className="space-y-1">
+          <Link to="/profile" aria-current="page" className="flex min-h-11 items-center gap-3 rounded-control p-3 text-sm font-medium text-accent bg-accent-subtle"><UserRound size={18} aria-hidden="true" />Información personal</Link>
+          <Link to="/orders" className={accountLink}><Package size={18} aria-hidden="true" className="shrink-0" />Historial de órdenes</Link>
+          <Link to="/security" className={accountLink}><LockKeyhole size={18} aria-hidden="true" className="shrink-0" />Contraseña</Link>
+          {user.role === 'ADMIN' && <div className="border-t border-border mt-3 pt-3">
+            <p className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-text-secondary"><Settings size={14} aria-hidden="true" />Administración</p>
+            {adminLinks.map(link => <Link key={link.to} to={link.to} className={accountLink}>{link.label}</Link>)}
+          </div>}
+          <div className="border-t border-border mt-3 pt-3"><Button type="button" variant="ghost" fullWidth onClick={handleLogout} className="justify-start text-error enabled:hover:text-error"><LogOut size={18} aria-hidden="true" />Cerrar sesión</Button></div>
+        </nav>
+      </aside>
+      <section aria-labelledby="profile-contact-title" className="ds-card p-5 sm:p-8 min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-5 border-b border-border">
+          <div><h2 id="profile-contact-title" className="text-xl font-semibold text-primary">Datos de contacto</h2><p className="text-sm text-text-secondary mt-1">Información de tu cuenta TechSpec.</p></div>
+          {!isEditing && <Button type="button" variant="secondary" onClick={() => { setName(displayName); setIsEditing(true); setMessage(''); }}><Pencil size={16} aria-hidden="true" />Editar</Button>}
         </div>
-      </div>
+        {message && <div className="mb-6"><Notice variant={message === 'Perfil actualizado correctamente' ? 'success' : 'error'}>{message}</Notice></div>}
+        {!isEditing ? <dl className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div><dt className="text-sm text-text-secondary mb-2">Nombre completo</dt><dd className="text-base font-medium text-primary break-words">{displayName}</dd></div>
+          <div><dt className="text-sm text-text-secondary mb-2">Correo electrónico</dt><dd className="text-base font-medium text-primary break-all">{user.email}</dd></div>
+          {user.role === 'ADMIN' && <div><dt className="text-sm text-text-secondary mb-2">Rol</dt><dd className="text-base font-medium text-primary">{user.role}</dd></div>}
+        </dl> : <form aria-label="Editar perfil" className="space-y-5" onSubmit={handleSave}>
+          <Input label="Nombre completo" type="text" value={name} autoComplete="name" onChange={event => setName(event.target.value)} required disabled={isSaving} wrapperClassName="" autoFocus />
+          <Input label="Correo electrónico" type="email" value={user.email} disabled wrapperClassName="" />
+          {user.role === 'ADMIN' && <Input label="Rol" type="text" value={user.role} disabled wrapperClassName="" />}
+          <div className="pt-5 border-t border-border flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <Button type="button" variant="secondary" disabled={isSaving} onClick={() => { setIsEditing(false); setName(displayName); }}>Cancelar</Button>
+            <Button type="submit" loading={isSaving}>{isSaving ? 'Guardando…' : 'Guardar cambios'}</Button>
+          </div>
+        </form>}
+      </section>
     </div>
-  );
-};
-
-export default Profile;
+  </div>;
+}

@@ -10,12 +10,13 @@ import { AuthProvider } from '../../src/context/AuthContext';
 // Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom') as any;
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
   };
 });
+vi.mock('@react-oauth/google', () => ({ GoogleLogin: () => <div>Google (servicio externo simulado)</div> }));
 
 describe('Auth Integration', () => {
   beforeEach(() => {
@@ -57,7 +58,7 @@ describe('Auth Integration', () => {
 
       await waitFor(() => {
         expect(localStorage.getItem('token')).toBe('fake-token');
-        expect(mockNavigate).toHaveBeenCalledWith('/');
+        expect(mockNavigate).toHaveBeenCalledWith('/profile');
       });
     });
 
@@ -101,13 +102,12 @@ describe('Auth Integration', () => {
       fireEvent.change(screen.getByLabelText(/Correo electrónico/i), { target: { value: 'new@example.com' } });
       fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'password123' } });
       fireEvent.change(screen.getByLabelText(/Confirmar contraseña/i), { target: { value: 'password123' } });
-      fireEvent.click(screen.getByLabelText(/Acepto los términos y condiciones/i));
       
       fireEvent.click(screen.getByRole('button', { name: /Crear cuenta/i }));
 
       await waitFor(() => {
         expect(localStorage.getItem('token')).toBe('fake-register-token');
-        expect(mockNavigate).toHaveBeenCalledWith('/');
+        expect(mockNavigate).toHaveBeenCalledWith('/profile');
       });
     });
 
@@ -118,7 +118,6 @@ describe('Auth Integration', () => {
       fireEvent.change(screen.getByLabelText(/Correo electrónico/i), { target: { value: 'new@example.com' } });
       fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'password123' } });
       fireEvent.change(screen.getByLabelText(/Confirmar contraseña/i), { target: { value: 'password321' } }); // Mismatch
-      fireEvent.click(screen.getByLabelText(/Acepto los términos y condiciones/i));
       
       fireEvent.click(screen.getByRole('button', { name: /Crear cuenta/i }));
 

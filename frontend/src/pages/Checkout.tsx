@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import { Notice } from '../components/ui/Interior';
+import { formatPrice } from '../utils/storefront';
 import { useAuth } from '../context/AuthContext';
 
 const Checkout: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<{ id: string; quantity: number; product: { name: string; price: number | string } }[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,8 +49,8 @@ const Checkout: React.FC = () => {
       await axios.post('/orders/checkout');
       window.dispatchEvent(new Event('cartUpdated'));
       navigate('/orders');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al procesar el pago');
+    } catch (err) {
+      setError(axios.isAxiosError(err) ? err.response?.data?.message || 'Error al procesar el pago' : 'Error al procesar el pago');
     } finally {
       setProcessing(false);
     }
@@ -66,12 +68,12 @@ const Checkout: React.FC = () => {
   return (
     <div className="page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">FINALIZAR COMPRA</h1>
+        <h1 className="ds-page-title text-primary">Finalizar compra</h1>
       </div>
 
       <form className="grid-container" onSubmit={handleCheckout}>
-        <div className="col-span-12 lg:col-span-8 space-y-8">
-          <section className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-8">
+        <div className="col-span-12 lg:col-span-8 min-w-0 space-y-6">
+          <section className="ds-card p-5 sm:p-6">
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">DIRECCIÓN DE ENVÍO</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -87,16 +89,16 @@ const Checkout: React.FC = () => {
             </div>
           </section>
 
-          <section className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-8">
+          <section className="ds-card p-5 sm:p-6">
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">MÉTODO DE PAGO</h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-4 border border-[var(--color-primary)] bg-[var(--color-surface)] p-4 rounded-[var(--radius-soft)] cursor-pointer">
-                <input type="radio" name="payment" defaultChecked className="accent-[var(--color-primary)] w-4 h-4" />
+              <label className="flex items-center min-h-11 gap-4 border border-[var(--color-accent)] bg-[var(--color-surface)] p-4 rounded-[var(--radius-soft)] cursor-pointer">
+                <input type="radio" name="payment" defaultChecked aria-label="Tarjeta de crédito o débito" className="accent-accent w-4 h-4 shrink-0" />
                 <div>
                   <p className="font-medium">Tarjeta de Crédito / Débito</p>
                   <p className="text-sm text-[var(--color-obsidian-light)]">Procesado de forma segura</p>
                 </div>
-              </div>
+              </label>
             </div>
 
             <div className="mt-6">
@@ -110,35 +112,35 @@ const Checkout: React.FC = () => {
         </div>
 
         <div className="col-span-12 lg:col-span-4">
-          <div className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] p-6 sticky top-24">
+          <div className="ds-card p-5 sm:p-6 lg:sticky lg:top-24">
             <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">RESUMEN DE LA ORDEN</h3>
 
             <div className="space-y-4 mb-6 border-b border-[var(--color-outline-subtle)] pb-6 max-h-60 overflow-y-auto">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex justify-between">
-                  <span className="text-[var(--color-obsidian-light)]">{item.quantity}x {item.product.name}</span>
-                  <span className="mono-data">${(Number(item.product.price) * item.quantity).toFixed(2)}</span>
+                <div key={item.id} className="flex justify-between gap-3">
+                  <span className="min-w-0 flex-1 break-words text-text-secondary">{item.quantity}x {item.product.name}</span>
+                  <span className="tabular-nums shrink-0">{formatPrice(Number(item.product.price) * item.quantity)}</span>
                 </div>
               ))}
             </div>
 
             <div className="flex justify-between mb-4">
               <span className="text-[var(--color-obsidian-light)]">Subtotal</span>
-              <span className="mono-data">${subtotal.toFixed(2)}</span>
+              <span className="mono-data">{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between mb-4 border-b border-[var(--color-outline-subtle)] pb-4">
               <span className="text-[var(--color-obsidian-light)]">Impuestos (18%)</span>
-              <span className="mono-data">${tax.toFixed(2)}</span>
+              <span className="mono-data">{formatPrice(tax)}</span>
             </div>
             <div className="flex justify-between mb-8">
               <span className="font-bold text-[var(--color-obsidian)]">TOTAL</span>
-              <span className="mono-data text-2xl font-bold">${finalTotal.toFixed(2)}</span>
+              <span className="mono-data text-2xl font-bold">{formatPrice(finalTotal)}</span>
             </div>
 
-            {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
+            {error && <div className="mb-4"><Notice>{error}</Notice></div>}
 
-            <Button fullWidth variant="primary" className="h-12" type="submit" disabled={processing || cartItems.length === 0}>
-              {processing ? 'PROCESANDO...' : 'CONFIRMAR PAGO'}
+            <Button fullWidth variant="primary" className="h-12" type="submit" loading={processing} disabled={cartItems.length === 0}>
+              {processing ? 'Procesando…' : 'Confirmar pago'}
             </Button>
           </div>
         </div>

@@ -10,18 +10,18 @@ const AdminLayout: React.FC = () => {
   if (!user || user.role !== 'ADMIN') return <Navigate to="/" replace />;
 
   const isActive = (path: string) => location.pathname.startsWith(path);
-  const activeClass = "flex items-center px-6 py-3 text-[var(--color-primary)] bg-[var(--color-surface-container)] font-medium border-r-2 border-[var(--color-primary)]";
-  const inactiveClass = "flex items-center px-6 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors";
+  const activeClass = "flex min-h-11 items-center px-4 py-3 text-[var(--color-primary)] bg-[var(--color-surface-container)] font-medium border-r-2 border-[var(--color-primary)]";
+  const inactiveClass = "flex min-h-11 items-center px-4 py-3 text-[var(--color-obsidian-light)] hover:bg-[var(--color-surface-container)] transition-colors";
 
   return (
-    <div className="flex h-screen bg-[var(--color-surface)] overflow-hidden">
+    <div className="admin-shell flex flex-col lg:flex-row min-h-screen lg:h-screen bg-background lg:overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-[var(--color-outline-subtle)] flex flex-col">
+      <aside className="w-full lg:w-64 lg:shrink-0 bg-card border-b lg:border-b-0 lg:border-r border-border flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-[var(--color-outline-subtle)]">
-          <span className="font-bold text-xl text-[var(--color-obsidian)] tracking-tight">TECH<span className="text-[var(--color-primary)]">ADMIN</span></span>
+          <span className="font-bold text-xl text-[var(--color-obsidian)] tracking-tight">TECH<span className="text-accent">ADMIN</span></span>
         </div>
-        <nav className="flex-1 overflow-y-auto py-4">
-          <ul className="space-y-1">
+        <nav className="flex-1 lg:overflow-y-auto py-3">
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:block lg:space-y-1">
             <li>
               <Link to="/admin/dashboard" className={isActive('/admin/dashboard') ? activeClass : inactiveClass}>
                 Dashboard
@@ -50,15 +50,15 @@ const AdminLayout: React.FC = () => {
           </ul>
         </nav>
         <div className="p-4 border-t border-[var(--color-outline-subtle)]">
-          <Link to="/" className="text-sm label-caps text-[var(--color-outline)] hover:text-[var(--color-obsidian)]">
+          <Link to="/" className="inline-flex min-h-11 items-center text-sm label-caps text-[var(--color-outline)] hover:text-[var(--color-obsidian)]">
             ← Volver a Tienda
           </Link>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-[var(--color-outline-subtle)] flex items-center justify-between px-8">
+      <div className="flex-1 min-w-0 flex flex-col lg:overflow-hidden">
+        <header className="min-h-16 bg-card border-b border-border flex flex-wrap gap-3 items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
           <h2 className="label-caps text-[var(--color-outline)]">PANEL DE CONTROL</h2>
           <div className="flex items-center gap-4">
             <span className="mono-data text-sm">ADMIN: {user?.name}</span>
@@ -67,7 +67,7 @@ const AdminLayout: React.FC = () => {
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-8 bg-[var(--color-surface)]">
+        <main className="flex-1 min-w-0 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-background">
           {/* We use Outlet if we were setting up real routes, but for mock purposes we will just render Dashboard directly here or assume React Router is configured */}
           <Outlet />
         </main>

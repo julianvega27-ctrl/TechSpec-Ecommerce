@@ -110,7 +110,7 @@ const Settings: React.FC = () => {
             <label className="block text-sm font-medium text-[var(--color-obsidian-light)]">
               Subtítulo
             </label>
-            <textarea
+            <textarea aria-label="Subtítulo del Hero"
               {...register('subtitle')}
               className="w-full h-32 rounded-[var(--radius-soft)] border border-[var(--color-outline-subtle)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-obsidian)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-colors resize-none"
               placeholder="Descripción que aparece debajo del título..."
@@ -125,7 +125,7 @@ const Settings: React.FC = () => {
               Imagen de Fondo (Opcional)
             </label>
             <input
-              type="file"
+              type="file" aria-label="Imagen del Hero"
               accept="image/*"
               {...register('image')}
               className="block w-full text-sm text-[var(--color-obsidian)]

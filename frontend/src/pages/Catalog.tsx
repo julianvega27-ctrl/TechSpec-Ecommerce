@@ -1,170 +1,204 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import ProductCard from '../components/ui/ProductCard';
+import ProductCard, { ProductCardSkeleton, type ProductCardProps } from '../components/ui/ProductCard';
 import Button from '../components/ui/Button';
-import { Search, ChevronDown } from 'lucide-react';
+import CatalogState from '../components/ui/CatalogState';
+import { ChevronLeft, ChevronRight, Search, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './Catalog.css';
+
+interface Category { id: string; name: string }
 
 const Catalog: React.FC = () => {
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<ProductCardProps[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState(false);
+  const [categoryRetry, setCategoryRetry] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const setPage = (next: number | ((current: number) => number)) => {
+    setSearchParams(previous => {
+      const params = new URLSearchParams(previous);
+      const value = typeof next === 'function' ? next(page) : next;
+      if (value === 1) params.delete('page');
+      else params.set('page', String(value));
+      return params;
+    });
+  };
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const selectedCategory = searchParams.get('category') || '';
+  const searchQuery = searchParams.get('search') || '';
+  const setFilter = (key: 'category' | 'search', value: string) => {
+    setSearchParams(previous => {
+      const params = new URLSearchParams(previous);
+      if (value) params.set(key, value);
+      else params.delete(key);
+      params.delete('page');
+      return params;
+    }, { replace: true });
+  };
   const [sortOption, setSortOption] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filterButtonRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLElement>(null);
+  const categoryName = categories.find(category => category.id === selectedCategory)?.name;
 
   useEffect(() => {
+    let cancelled = false;
     const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      setCategoriesError(false);
       try {
         const response = await axios.get('/categories');
         const payload = response.data.data || response.data;
-        setCategories(payload);
+        if (!cancelled) setCategories(payload);
       } catch (error) {
         console.error('Error fetching categories:', error);
+        if (!cancelled) setCategoriesError(true);
+      } finally {
+        if (!cancelled) setCategoriesLoading(false);
       }
     };
-    fetchCategories();
-  }, []);
+    void fetchCategories();
+    return () => { cancelled = true; };
+  }, [categoryRetry]);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchProducts = async () => {
       setLoading(true);
+      setError(false);
       try {
         let url = `/products?page=${page}&limit=12`;
-        if (selectedCategory) {
-          url += `&category=${selectedCategory}`;
-        }
-        if (searchQuery) {
-          url += `&search=${encodeURIComponent(searchQuery)}`;
-        }
-        if (sortOption === 'Menor a Mayor') {
-          url += `&sort=price_asc`;
-        } else if (sortOption === 'Mayor a Menor') {
-          url += `&sort=price_desc`;
-        }
+        if (selectedCategory) url += `&category=${selectedCategory}`;
+        if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+        if (sortOption === 'Menor a Mayor') url += '&sort=price_asc';
+        else if (sortOption === 'Mayor a Menor') url += '&sort=price_desc';
         const response = await axios.get(url);
         const payload = response.data.data || response.data;
-        setProducts(payload.products || []);
-        setTotalPages(payload.totalPages || 1);
-        setTotal(payload.total || 0);
+        if (!cancelled) {
+          setProducts(payload.products || []);
+          setTotalPages(payload.totalPages || 1);
+          setTotal(payload.total || 0);
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
+        if (!cancelled) setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-    fetchProducts();
-  }, [page, selectedCategory, searchQuery, sortOption]);
+    void fetchProducts();
+    return () => { cancelled = true; };
+  }, [page, selectedCategory, searchQuery, sortOption, retry]);
+
+  useEffect(() => {
+    if (filtersOpen) filtersRef.current?.querySelector<HTMLInputElement>('input:checked')?.focus();
+  }, [filtersOpen]);
+
+  const addToCart = async (productId: string) => {
+    if (!user) {
+      navigate('/login');
+      return false;
+    }
+    await axios.post('/cart', { productId, quantity: 1 });
+    window.dispatchEvent(new Event('cartUpdated'));
+    return true;
+  };
+  const resetFilters = () => {
+    setSearchParams({});
+    setSortOption('');
+  };
 
   return (
-    <div className="page-wrapper py-8">
-      <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">CATÁLOGO DE HARDWARE</h1>
-        <p className="text-[var(--color-obsidian-light)] mt-2">Equipamiento técnico de precisión.</p>
+    <div className="techspec-catalog page-wrapper py-8 lg:py-10">
+      <nav aria-label="Ruta de navegación" className="flex items-center gap-2 mb-4 text-sm text-text-secondary">
+        <Link to="/" className="hover:text-accent transition-colors">Inicio</Link>
+        <ChevronRight aria-hidden="true" size={14} />
+        <span aria-current="page" className="text-primary">Catálogo</span>
+      </nav>
+      <div className="mb-6">
+        <h1 className="ds-page-title text-primary">Catálogo</h1>
+        <p className="mt-2 text-text-secondary">Encuentra el equipo que va contigo.</p>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
-        {/* Sidebar Filters */}
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
-          <div className="mb-8 border-b border-[var(--color-outline-subtle)] pb-6">
-            <h3 className="label-caps mb-4">Categorías</h3>
-            <ul className="space-y-3">
-              <li className="flex items-center">
-                <input
-                  type="radio"
-                  name="category"
-                  checked={selectedCategory === ''}
-                  onChange={() => { setSelectedCategory(''); setPage(1); }}
-                  className="mr-2 accent-[var(--color-primary)]"
-                />
-                <span className="text-[var(--color-obsidian)]">Todas</span>
-              </li>
-              {categories.map(cat => (
-                <li key={cat.id} className="flex items-center">
-                  <input
-                    type="radio"
-                    name="category"
-                    checked={selectedCategory === cat.id}
-                    onChange={() => { setSelectedCategory(cat.id); setPage(1); }}
-                    className="mr-2 accent-[var(--color-primary)]"
-                  />
-                  <span className="text-[var(--color-obsidian)]">{cat.name}</span>
-                </li>
+      <div className="catalog-toolbar ds-card mb-6">
+        <div className="relative min-w-0">
+          <label htmlFor="catalog-search" className="sr-only">Buscar en el catálogo</label>
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" size={18} />
+          <input id="catalog-search" type="search" placeholder="Buscar por nombre o marca…" className="ds-control pl-10" value={searchQuery} onChange={(event) => setFilter('search', event.target.value)} />
+        </div>
+        <div className="catalog-sort flex items-center gap-3">
+          <label htmlFor="catalog-sort" className="sr-only sm:not-sr-only text-sm text-text-secondary shrink-0">Ordenar por</label>
+          <div className="relative flex-1 min-w-0">
+            <select id="catalog-sort" className="ds-control appearance-none pr-9 cursor-pointer text-sm" value={sortOption} onChange={(event) => { setSortOption(event.target.value); setPage(1); }}>
+              <option value="">Destacados</option>
+              <option value="Menor a Mayor">Precio: menor a mayor</option>
+              <option value="Mayor a Menor">Precio: mayor a menor</option>
+            </select>
+            <ChevronDown aria-hidden="true" className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" size={16} />
+          </div>
+        </div>
+        <div ref={filterButtonRef} className="lg:hidden catalog-filter-toggle">
+          <Button type="button" variant="secondary" fullWidth aria-label="Categorías" aria-expanded={filtersOpen} aria-controls="catalog-filters" onClick={() => setFiltersOpen(value => !value)}>
+            <SlidersHorizontal aria-hidden="true" size={18} /><span className="hidden min-[480px]:inline">Categorías</span>
+          </Button>
+        </div>
+      </div>
+
+      <div className="catalog-layout">
+        <aside id="catalog-filters" ref={filtersRef} aria-label="Filtros del catálogo" className={`catalog-filters ds-card ${filtersOpen ? 'block' : 'hidden'} lg:block`} onKeyDown={(event) => {
+          if (event.key === 'Escape') { setFiltersOpen(false); filterButtonRef.current?.querySelector('button')?.focus(); }
+        }}>
+          <fieldset>
+            <legend className="text-base font-semibold text-primary mb-4">Categorías</legend>
+            <div className="space-y-1">
+              <label className={`catalog-category ${!selectedCategory ? 'is-selected' : ''}`}>
+                <input type="radio" name="category" checked={!selectedCategory} onChange={() => setFilter('category', '')} />
+                <span>Todas las categorías</span>
+              </label>
+              {categoriesLoading ? <div role="status" className="text-sm text-text-secondary px-3 py-4">Cargando categorías…</div> : categoriesError ? <div role="alert" className="text-sm text-error px-3 py-3">
+                <p>No se pudieron cargar las categorías.</p>
+                <Button type="button" variant="ghost" className="mt-2" onClick={() => setCategoryRetry(value => value + 1)}>Reintentar</Button>
+              </div> : categories.map(category => (
+                <label key={category.id} className={`catalog-category ${selectedCategory === category.id ? 'is-selected' : ''}`}>
+                  <input type="radio" name="category" checked={selectedCategory === category.id} onChange={() => setFilter('category', category.id)} />
+                  <span className="min-w-0 break-words">{category.name}</span>
+                </label>
               ))}
-            </ul>
-          </div>
-          <div className="mb-8">
-            <h3 className="label-caps mb-4">Precio</h3>
-            <div className="relative">
-              <select
-                className="w-full appearance-none border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-2 pr-10 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all cursor-pointer"
-                value={sortOption}
-                onChange={(e) => { setSortOption(e.target.value); setPage(1); }}
-              >
-                <option value="">Destacados</option>
-                <option value="Menor a Mayor">Menor a Mayor</option>
-                <option value="Mayor a Menor">Mayor a Menor</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-outline)] pointer-events-none" size={18} />
             </div>
-          </div>
+          </fieldset>
         </aside>
 
-        {/* Product Grid */}
-        <div className="col-span-12 md:col-span-9">
-          <div className="flex justify-between items-center mb-6 border-b border-[var(--color-outline-subtle)] pb-4">
-            <span className="mono-data text-sm text-[var(--color-obsidian-light)]">{total} RESULTADOS</span>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--color-outline)] pointer-events-none" size={18} />
-              <input
-                type="text"
-                placeholder="Buscar..."
-                className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] py-2 pl-10 pr-4 bg-[var(--color-surface-container)] text-[var(--color-obsidian)] outline-none w-64 focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all"
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-              />
-            </div>
+        <section className="min-w-0" aria-label="Productos del catálogo" aria-busy={loading}>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4 min-h-8">
+            <p role="status" aria-live="polite" className="text-sm text-text-secondary">
+              {loading ? 'Buscando productos…' : error ? 'Productos' : `${total} ${total === 1 ? 'producto' : 'productos'}`}
+            </p>
+            {categoryName && <button type="button" className="catalog-selection" onClick={() => setFilter('category', '')} aria-label={`Quitar categoría ${categoryName}`}>
+              <span className="min-w-0 break-words">{categoryName}</span><X aria-hidden="true" size={14} className="shrink-0" />
+            </button>}
           </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {loading ? (
-              <div className="col-span-full text-center py-12 text-gray-500 mono-data">CARGANDO...</div>
-            ) : products.length > 0 ? (
-              products.map(product => (
-                <ProductCard key={product.id} {...product} category={product.category?.name || 'UNCATEGORIZED'} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12 text-gray-500 mono-data">NO SE ENCONTRARON PRODUCTOS</div>
-            )}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-12 flex justify-center border-t border-[var(--color-outline-subtle)] pt-8">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="secondary"
-                  className="px-3"
-                  disabled={page === 1}
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                >&lt;</Button>
-
-                <span className="text-[var(--color-obsidian)] px-4 font-bold mono-data">
-                  {page} / {totalPages}
-                </span>
-
-                <Button
-                  variant="secondary"
-                  className="px-3"
-                  disabled={page === totalPages}
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                >&gt;</Button>
-              </div>
-            </div>
+          {loading ? <div className="catalog-grid">{Array.from({ length: 6 }, (_, index) => <ProductCardSkeleton key={index} />)}</div> : error ? (
+            <CatalogState variant="error" title="No pudimos cargar el catálogo" description="Inténtalo de nuevo para ver los productos con tu selección actual." action={<Button type="button" variant="secondary" onClick={() => setRetry(value => value + 1)}>Volver a intentar</Button>} />
+          ) : products.length > 0 ? <div className="catalog-grid">{products.map(product => <ProductCard key={product.id} {...product} onAddToCart={addToCart} />)}</div> : (
+            <CatalogState variant="empty" title="No encontramos productos" description={searchQuery || selectedCategory ? 'Prueba con otra búsqueda o cambia la categoría seleccionada.' : 'No hay productos para mostrar en este momento.'} action={searchQuery || selectedCategory ? <Button type="button" variant="secondary" onClick={resetFilters}>Ver todo el catálogo</Button> : undefined} />
           )}
-        </div>
+
+          {!loading && !error && products.length > 0 && totalPages > 1 && <nav aria-label="Paginación de productos" className="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-border">
+            <Button type="button" variant="secondary" aria-label="Página anterior" disabled={page === 1} onClick={() => setPage(current => Math.max(1, current - 1))}><ChevronLeft aria-hidden="true" size={18} /><span className="hidden sm:inline">Anterior</span></Button>
+            <span className="text-sm text-text-secondary tabular-nums">Página <strong className="font-medium text-primary">{page}</strong> de {totalPages}</span>
+            <Button type="button" variant="secondary" aria-label="Página siguiente" disabled={page === totalPages} onClick={() => setPage(current => Math.min(totalPages, current + 1))}><span className="hidden sm:inline">Siguiente</span><ChevronRight aria-hidden="true" size={18} /></Button>
+          </nav>}
+        </section>
       </div>
     </div>
   );

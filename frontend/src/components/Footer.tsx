@@ -7,16 +7,16 @@ const Footer: React.FC = () => {
       <div className="page-wrapper py-12">
         <div className="grid-container">
           <div className="col-span-12 md:col-span-4 flex justify-center md:justify-start mb-6 md:mb-0 items-center">
-            <span className="font-bold text-xl text-[var(--color-obsidian)] tracking-tight">TECH<span className="text-[var(--color-primary)]">SPEC</span></span>
+            <span className="font-bold text-xl text-[var(--color-obsidian)] tracking-tight">TECH<span className="text-accent">SPEC</span></span>
           </div>
-          <div className="col-span-12 md:col-span-4 flex justify-center space-x-6 items-center">
-            <Link to="/terms" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
+          <div className="col-span-12 md:col-span-4 flex flex-wrap justify-center gap-x-6 items-center">
+            <Link to="/terms" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps inline-flex min-h-11 items-center transition-colors">
               Términos
             </Link>
-            <Link to="/privacy" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
+            <Link to="/privacy" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps inline-flex min-h-11 items-center transition-colors">
               Privacidad
             </Link>
-            <Link to="/support" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps transition-colors">
+            <Link to="/support" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-primary)] label-caps inline-flex min-h-11 items-center transition-colors">
               Soporte
             </Link>
           </div>

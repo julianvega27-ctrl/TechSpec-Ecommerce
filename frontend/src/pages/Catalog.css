@@ -1,0 +1,69 @@
+@layer components {
+  .techspec-catalog .catalog-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 4);
+  }
+  .techspec-catalog .catalog-toolbar > :first-child { flex: 1 1 100%; }
+  .techspec-catalog .catalog-sort { flex: 1; min-width: 0; }
+  .techspec-catalog .catalog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: calc(var(--spacing) * 6);
+  }
+  .techspec-catalog .catalog-filters { padding: calc(var(--spacing) * 4); min-width: 0; }
+  .techspec-catalog .catalog-filters fieldset { min-width: 0; }
+  .techspec-catalog .catalog-category {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    min-height: var(--control-height);
+    padding: 10px 12px;
+    border-radius: var(--radius-control);
+    color: var(--color-text-label);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: background-color var(--motion-fast) var(--motion-easing),
+      color var(--motion-fast) var(--motion-easing);
+  }
+  .techspec-catalog .catalog-category input { accent-color: var(--color-accent); flex-shrink: 0; width: 16px; height: 16px; }
+  .techspec-catalog .catalog-category:hover { background: var(--color-background); }
+  .techspec-catalog .catalog-category.is-selected { background: var(--color-accent-subtle); color: var(--color-accent); font-weight: 500; }
+  .techspec-catalog .catalog-category:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  .techspec-catalog .catalog-selection {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    max-width: 100%;
+    min-height: var(--control-height);
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-card);
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    transition: background-color var(--motion-fast) var(--motion-easing);
+  }
+  .techspec-catalog .catalog-selection:hover { background: var(--color-accent-subtle); }
+  .techspec-catalog .catalog-selection:active { background: var(--color-surface-container-high); }
+  .techspec-catalog .catalog-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: calc(var(--spacing) * 5);
+  }
+  @media (min-width: 480px) {
+    .techspec-catalog .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 768px) {
+    .techspec-catalog .catalog-toolbar > :first-child { flex-basis: 180px; }
+    .techspec-catalog .catalog-sort { flex: 0 1 300px; }
+  }
+  @media (min-width: 1024px) {
+    .techspec-catalog .catalog-layout { grid-template-columns: 216px minmax(0, 1fr); }
+    .techspec-catalog .catalog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+}

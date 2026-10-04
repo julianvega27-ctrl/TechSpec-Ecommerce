@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { formatPrice } from '../../utils/storefront';
+interface DashboardStats { todaysSales: number | string; pendingOrders: number; activeUsers: number; lowStockProducts: number; recentOrders?: { id: string; status: string; totalAmount: number | string; user?: { name: string } }[] }
 const ORDER_STATUS_MAP: Record<string, string> = {
   'PENDING': 'PENDIENTE',
   'PROCESSING': 'PROCESANDO',
@@ -9,7 +11,7 @@ const ORDER_STATUS_MAP: Record<string, string> = {
 };
 
 const Dashboard: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ const Dashboard: React.FC = () => {
   }
 
   if (!stats) {
-    return <div className="mono-data py-10 text-center text-[var(--color-error)]">Error al cargar datos.</div>;
+    return <div role="alert" className="mono-data py-10 text-center text-[var(--color-error)]">Error al cargar datos.</div>;
   }
 
   return (
@@ -46,7 +48,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-6">
           <h3 className="label-caps text-[var(--color-obsidian-light)] mb-2">VENTAS DE HOY</h3>
-          <p className="mono-data text-3xl font-bold text-[var(--color-obsidian)] mb-4">${Number(stats.todaysSales || 0).toFixed(2)}</p>
+          <p className="mono-data text-3xl font-bold text-[var(--color-obsidian)] mb-4">{formatPrice(stats.todaysSales || 0)}</p>
         </div>
         <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-6">
           <h3 className="label-caps text-[var(--color-obsidian-light)] mb-2">ÓRDENES PENDIENTES</h3>
@@ -64,11 +66,11 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Recent Orders Table */}
-      <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] overflow-hidden">
+      <div className="bg-white border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] overflow-x-auto">
         <div className="p-6 border-b border-[var(--color-outline-subtle)] flex justify-between items-center">
           <h3 className="label-caps text-[var(--color-obsidian)]">ÓRDENES RECIENTES</h3>
         </div>
-        <table className="w-full text-left border-collapse">
+        <table aria-label="Órdenes recientes" className="min-w-[560px] w-full text-left border-collapse">
           <thead className="bg-[var(--color-surface-container)] border-b border-[var(--color-outline-subtle)]">
             <tr>
               <th className="py-3 px-6 label-caps text-[var(--color-obsidian-light)]">ID ORDEN</th>
@@ -78,7 +80,7 @@ const Dashboard: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {stats.recentOrders && stats.recentOrders.length > 0 ? stats.recentOrders.map((order: any, index: number) => (
+            {stats.recentOrders && stats.recentOrders.length > 0 ? stats.recentOrders.map((order, index) => (
               <tr key={order.id} className={`border-b border-[var(--color-outline-subtle)] last:border-b-0 ${index % 2 !== 0 ? 'bg-[var(--color-surface)]' : 'bg-white'}`}>
                 <td className="py-4 px-6 mono-data font-medium text-[var(--color-obsidian)] truncate max-w-[150px]">{order.id}</td>
                 <td className="py-4 px-6 text-[var(--color-obsidian)]">{order.user?.name}</td>
@@ -87,7 +89,7 @@ const Dashboard: React.FC = () => {
                     {ORDER_STATUS_MAP[order.status] || order.status}
                   </span>
                 </td>
-                <td className="py-4 px-6 mono-data text-right font-bold">${Number(order.totalAmount).toFixed(2)}</td>
+                <td className="py-4 px-6 mono-data text-right font-bold">{formatPrice(order.totalAmount)}</td>
               </tr>
             )) : (
               <tr>

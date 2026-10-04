@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Badge } from '../components/ui/Indicators';
 import { useAuth } from '../context/AuthContext';
 import { Package } from 'lucide-react';
+import { formatPrice } from '../utils/storefront';
 
 const ORDER_STATUS_MAP: Record<string, string> = {
   'PENDING': 'PENDIENTE',
@@ -16,16 +17,18 @@ const ORDER_STATUS_MAP: Record<string, string> = {
 const OrderHistory: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<{ id: string; createdAt: string; status: string; totalAmount: number | string }[]>([]);
+  const loggingOut = useRef(false);
   const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
+    loggingOut.current = true;
     logout();
     navigate('/');
   };
 
   useEffect(() => {
-    if (!user && !loading) {
+    if (!user && !loading && !loggingOut.current) {
       navigate('/login');
       return;
     }
@@ -67,13 +70,13 @@ const OrderHistory: React.FC = () => {
   };
 
   return (
-    <div className="page-wrapper py-8">
+    <div className="account-legacy page-wrapper py-8">
       <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">HISTORIAL DE ÓRDENES</h1>
+        <h1 className="ds-page-title text-primary">Historial de órdenes</h1>
       </div>
 
       <div className="grid-container">
-        <aside className="col-span-12 md:col-span-3 border-r border-[var(--color-outline-subtle)] pr-6 mb-8 md:mb-0">
+        <aside className="col-span-12 md:col-span-3 ds-card p-4 min-w-0">
           <ul className="space-y-4">
             <li>
               <Link to="/profile" className="text-[var(--color-obsidian-light)] hover:text-[var(--color-obsidian)] cursor-pointer block">Información Personal</Link>
@@ -110,9 +113,9 @@ const OrderHistory: React.FC = () => {
           </ul>
         </aside>
 
-        <div className="col-span-12 md:col-span-9">
-          <div className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-white overflow-hidden">
-            <table className="w-full text-left border-collapse">
+        <div className="col-span-12 md:col-span-9 min-w-0">
+          <div className="border border-[var(--color-outline-subtle)] rounded-card bg-card overflow-x-auto">
+            <table aria-label="Historial de órdenes" className="min-w-[560px] w-full text-left border-collapse">
               <thead className="bg-[var(--color-surface-container)] border-b border-[var(--color-outline-subtle)]">
                 <tr>
                   <th className="py-3 px-4 label-caps text-[var(--color-obsidian-light)]">ID ORDEN</th>
@@ -139,7 +142,7 @@ const OrderHistory: React.FC = () => {
                       <td className="py-4 px-4">
                         <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_MAP[order.status] || order.status}</Badge>
                       </td>
-                      <td className="py-4 px-4 mono-data text-right font-bold">${Number(order.totalAmount).toFixed(2)}</td>
+                      <td className="py-4 px-4 mono-data text-right font-bold">{formatPrice(order.totalAmount)}</td>
                     </tr>
                   ))
                 )}

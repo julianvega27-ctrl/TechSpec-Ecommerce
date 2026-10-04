@@ -1,22 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ShoppingCart, Trash2 } from 'lucide-react';
+import { ArrowRight, ShoppingCart, Trash2 } from 'lucide-react';
 import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import { useAuth } from '../context/AuthContext';
+import CatalogState from '../components/ui/CatalogState';
+import { Breadcrumb, PageHeading, Notice, ProductImage } from '../components/ui/Interior';
+import { actionLinkClass, formatPrice } from '../utils/storefront';
 
-const Cart: React.FC = () => {
+interface CartItem { id: string; quantity: number; product: { id: string; name: string; brand?: string; price: number | string; imageUrl?: string } }
+
+export default function Cart() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState<string[]>([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!user && !loading) {
-      navigate('/login');
-      return;
-    }
-
+    if (!user && !loading) { navigate('/login'); return; }
     const fetchCart = async () => {
       try {
         const response = await axios.get('/cart');
@@ -24,142 +28,86 @@ const Cart: React.FC = () => {
         setCartItems(payload);
       } catch (error) {
         console.error('Error fetching cart:', error);
-      } finally {
-        setLoading(false);
-      }
+        setError('No se pudo cargar el carrito. Vuelve a abrir esta página para intentarlo de nuevo.');
+      } finally { setLoading(false); }
     };
-
-    if (user) {
-      fetchCart();
-    }
+    if (user) void fetchCart();
   }, [user, navigate, loading]);
 
   const updateQuantity = async (id: string, quantity: number) => {
+    if (pending.includes(id)) return;
+    setPending(current => [...current, id]); setError('');
     try {
       if (quantity <= 0) {
         await axios.delete(`/cart/${id}`);
-        setCartItems(cartItems.filter(item => item.id !== id));
+        setCartItems(current => current.filter(item => item.id !== id));
       } else {
         await axios.put(`/cart/${id}`, { quantity });
-        setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity } : item));
+        setCartItems(current => current.map(item => item.id === id ? { ...item, quantity } : item));
       }
       window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       console.error('Error updating quantity:', error);
-    }
+      setError('No se pudo actualizar el carrito. Inténtalo de nuevo.');
+    } finally { setPending(current => current.filter(itemId => itemId !== id)); }
   };
-
   const removeItem = async (id: string) => {
+    if (pending.includes(id)) return;
+    setPending(current => [...current, id]); setError('');
     try {
       await axios.delete(`/cart/${id}`);
-      setCartItems(cartItems.filter(item => item.id !== id));
+      setCartItems(current => current.filter(item => item.id !== id));
       window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       console.error('Error removing item:', error);
-    }
+      setError('No se pudo eliminar el producto. Inténtalo de nuevo.');
+    } finally { setPending(current => current.filter(itemId => itemId !== id)); }
   };
-
-  if (!user) {
-    return <div className="page-wrapper py-24 text-center mono-data">Por favor, inicie sesión para ver su carrito.</div>;
-  }
-
-  const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.product.price) * item.quantity), 0);
+  const subtotal = cartItems.reduce((acc, item) => acc + Number(item.product.price) * item.quantity, 0);
   const tax = subtotal * 0.18;
   const total = subtotal + tax;
 
-  return (
-    <div className="page-wrapper py-8">
-      <div className="border-b border-[var(--color-outline-subtle)] pb-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-obsidian)]">CARRITO DE COMPRAS</h1>
+  if (!user) return <div className="page-wrapper py-8"><CatalogState variant="empty" title="Tu carrito" description="Por favor, inicia sesión para ver tu carrito." action={<Link to="/login" className={actionLinkClass}>Iniciar sesión</Link>} /></div>;
+  return <div className="cart-page page-wrapper py-8 lg:py-10">
+    <Breadcrumb current="Carrito" parent={{ label: 'Catálogo', to: '/catalog' }} />
+    <PageHeading title="Tu carrito" description="Revisa tus productos antes de continuar con la compra." />
+    {loading ? <Notice variant="loading">Cargando carrito…</Notice> : <>
+      {error && <div className="mb-6"><Notice>{error}</Notice></div>}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 lg:gap-8 items-start">
+        <section aria-label="Productos del carrito" className="min-w-0 space-y-4">
+          {cartItems.length === 0 ? <CatalogState variant="empty" title={error ? 'Productos no disponibles' : 'Tu carrito está vacío'} description={error ? 'No podemos mostrar los productos en este momento.' : 'Explora el catálogo y encuentra tu próximo equipo.'} action={<Link to="/catalog" className={actionLinkClass}>Explorar catálogo</Link>} /> : cartItems.map(item => {
+            const busy = pending.includes(item.id);
+            return <article key={item.id} aria-label={item.product.name} aria-busy={busy} className="ds-card p-4 sm:p-5">
+              <div className="flex items-start gap-4">
+                <Link to={`/product/${item.product.id}`} className="shrink-0 rounded-control" aria-label={`Ver ${item.product.name}`}><ProductImage src={item.product.imageUrl} name={item.product.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-control border border-border p-2" /></Link>
+                <div className="flex-1 min-w-0">
+                  {item.product.brand && <p className="text-xs text-text-secondary mb-1">{item.product.brand}</p>}
+                  <h2 className="text-base font-medium text-primary break-words"><Link to={`/product/${item.product.id}`} className="hover:text-accent transition-colors">{item.product.name}</Link></h2>
+                  <p className="mt-2 text-sm text-text-secondary tabular-nums">Precio unitario: <span className="text-primary">{formatPrice(item.product.price)}</span></p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-end gap-4 mt-4 pt-4 border-t border-border">
+                <Input id={`cart-quantity-${item.id}`} label="Cantidad" aria-label={`Cantidad de ${item.product.name}`} type="number" value={item.quantity} onChange={event => { void updateQuantity(item.id, parseInt(event.target.value) || 0); }} min={1} disabled={busy} fullWidth={false} wrapperClassName="w-20" className="text-center tabular-nums" />
+                <Button type="button" variant="ghost" loading={busy} disabled={busy} aria-label={`Eliminar ${item.product.name}`} onClick={() => { void removeItem(item.id); }} className="text-error enabled:hover:text-error">
+                  {!busy && <Trash2 size={16} aria-hidden="true" />}{busy ? 'Actualizando…' : 'Eliminar'}
+                </Button>
+                <div className="ml-auto min-w-0 text-right"><p className="text-xs text-text-secondary mb-1">Subtotal del producto</p><p className="text-lg font-semibold text-primary tabular-nums break-words">{formatPrice(Number(item.product.price) * item.quantity)}</p></div>
+              </div>
+            </article>;
+          })}
+          {cartItems.length > 0 && <Link to="/catalog" className={`${actionLinkClass} mt-2`}>Seguir comprando</Link>}
+        </section>
+        {(!error || cartItems.length > 0) && <aside aria-label="Resumen de compra" className="ds-card p-5 sm:p-6 min-w-0">
+          <h2 className="text-lg font-semibold text-primary mb-6">Resumen de compra</h2>
+          <dl className="space-y-4 text-sm">
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Subtotal</dt><dd className="text-primary tabular-nums">{formatPrice(subtotal)}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Impuestos (18%)</dt><dd className="text-primary tabular-nums">{formatPrice(tax)}</dd></div>
+            <div className="flex justify-between gap-3 items-center border-t border-border pt-5"><dt className="font-medium text-primary">Total estimado</dt><dd className="text-2xl font-semibold text-primary tabular-nums">{formatPrice(total)}</dd></div>
+          </dl>
+          <Link to="/checkout" className="mt-6 flex min-h-12 items-center justify-center gap-2 bg-primary text-white font-semibold text-sm rounded-control px-4 py-3 hover:bg-primary-hover active:bg-primary transition-colors duration-200">Proceder al pago<ArrowRight size={18} aria-hidden="true" /></Link>
+          <p className="flex items-center gap-2 mt-4 text-xs text-text-secondary"><ShoppingCart size={14} aria-hidden="true" />{cartItems.reduce((count, item) => count + item.quantity, 0)} unidades en tu carrito</p>
+        </aside>}
       </div>
-
-      <div className="grid-container">
-        <div className="col-span-12 lg:col-span-8">
-          <div className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-white overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-[var(--color-surface-container)] border-b border-[var(--color-outline-subtle)]">
-                <tr>
-                  <th className="py-3 px-4 label-caps text-[var(--color-obsidian-light)] w-1/2">PRODUCTO</th>
-                  <th className="py-3 px-4 label-caps text-[var(--color-obsidian-light)] text-center">CANTIDAD</th>
-                  <th className="py-3 px-4 label-caps text-[var(--color-obsidian-light)] text-right">PRECIO</th>
-                  <th className="py-3 px-4 label-caps text-[var(--color-obsidian-light)] text-right">TOTAL</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cartItems.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="py-12 text-center text-[var(--color-obsidian-light)]">
-                      <div className="flex flex-col items-center justify-center">
-                        <ShoppingCart size={48} className="mb-4 text-[var(--color-outline-subtle)]" />
-                        <span className="mono-data">EL CARRITO ESTÁ VACÍO</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  cartItems.map((item, index) => (
-                    <tr key={item.id} className={`border-b border-[var(--color-outline-subtle)] last:border-b-0 ${index % 2 !== 0 ? 'bg-[var(--color-surface)]' : 'bg-white'}`}>
-                      <td className="py-4 px-4 flex items-center gap-4">
-                        <div className="w-16 h-16 bg-[var(--color-surface-container)] border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] flex items-center justify-center overflow-hidden">
-                          {item.product.imageUrl ? (
-                            <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-contain" />
-                          ) : (
-                            <span className="text-[10px] text-gray-400 mono-data">IMG</span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-[var(--color-obsidian)]">{item.product.name}</p>
-                          <p className="mono-data text-xs text-[var(--color-outline)]">SKU: {item.product.id.slice(0, 8)}</p>
-                          <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 transition-colors mt-2 flex items-center gap-1 text-xs" title="Eliminar del carrito">
-                            <Trash2 size={14} /> Eliminar
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                          min={1}
-                          className="w-16 border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] p-1 text-center mono-data outline-none"
-                        />
-                      </td>
-                      <td className="py-4 px-4 mono-data text-right">${Number(item.product.price).toFixed(2)}</td>
-                      <td className="py-4 px-4 mono-data text-right font-bold">${(Number(item.product.price) * item.quantity).toFixed(2)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="col-span-12 lg:col-span-4">
-          <div className="border border-[var(--color-outline-subtle)] rounded-[var(--radius-soft)] bg-[var(--color-surface-container)] p-6 sticky top-24">
-            <h3 className="label-caps mb-6 border-b border-[var(--color-outline-subtle)] pb-2">RESUMEN DE ORDEN</h3>
-
-            <div className="flex justify-between mb-4">
-              <span className="text-[var(--color-obsidian-light)]">Subtotal</span>
-              <span className="mono-data">${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between mb-4 border-b border-[var(--color-outline-subtle)] pb-4">
-              <span className="text-[var(--color-obsidian-light)]">Impuestos (18%)</span>
-              <span className="mono-data">${tax.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between mb-8">
-              <span className="font-bold text-[var(--color-obsidian)]">TOTAL ESTIMADO</span>
-              <span className="mono-data text-2xl font-bold">${total.toFixed(2)}</span>
-            </div>
-
-            <Link to="/checkout">
-              <Button fullWidth variant="primary" className="h-12">
-                PROCEDER AL PAGO
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Cart;
+    </>}
+  </div>;
+}
